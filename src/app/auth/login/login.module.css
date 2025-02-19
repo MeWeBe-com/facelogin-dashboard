@@ -1,0 +1,14 @@
+.myInput {
+    min-height: 48px;
+    max-height: 48px;
+    height: 48px;
+}
+
+.forgot{
+    color: var(--primary)!important;
+}
+
+.loginBtn{
+    color: #fff;
+    background-color: var(--primary)!important;
+}
