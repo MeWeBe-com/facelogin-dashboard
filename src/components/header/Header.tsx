@@ -5,9 +5,6 @@ import Image from "next/image";
 import styles from "./style.module.css";
 
 const Header = () => {
-    useEffect(() => {
-        require("bootstrap/dist/js/bootstrap.bundle.min.js");
-    }, []);
 
     return (
         <nav className="navbar navbar-expand-lg bg-white border-bottom px-3">

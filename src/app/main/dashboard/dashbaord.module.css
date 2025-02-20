@@ -1,12 +1,77 @@
-.box{
-    
+.box {
+    box-shadow: rgb(170, 170, 170) 2px 2px 4px 0px;
+    overflow: hidden;
+    border: 1px solid rgba(209, 205, 205, 1);
+}
+
+.boxHead {
     font-size: 20px;
     font-weight: 700;
     line-height: 1.4;
     padding: 2px 2px 2px 10px;
-    border: 1px solid rgba(209, 205, 205, 1);;
     background-color: #f1f1f1;
+    border-bottom: 1px solid rgba(209, 205, 205, 1);
+}
+
+.attMainBox {
+    margin: 10px;
+    overflow-x: scroll !important;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.attMainBox::-webkit-scrollbar {
+    display: none;
+}
+
+.attBox {
+    min-width: 200px;
+    margin-right: 10px;
+    padding: 10px;
+}
+
+.attBoxSelected {
+    border: 1px solid grey;
+    border-radius: 10px;
+}
+
+.attCount {
+    font-size: 24px;
+}
+
+.iconColor {
+    color: var(--primary) !important;
+    font-size: 25px;
+}
+
+.listMainBox {
     box-shadow: rgb(170, 170, 170) 2px 2px 4px 0px;
-    height: 40px;
-    line-height: 40px;
+    overflow: hidden;
+    border: 1px solid rgba(209, 205, 205, 1);
+}
+
+.listBox {
+    max-width: 300px;
+}
+
+.btnColor {
+    color: #fff;
+    background: var(--primary);
+}
+
+.btnColor:hover {
+    color: #fff;
+    background: var(--primary);
+    opacity: .7;
+}
+
+.btnOutline {
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.btnOutline:hover {
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    opacity: .7;
 }
