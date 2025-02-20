@@ -33,10 +33,10 @@ const Header = () => {
                 <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
                     <ul className="navbar-nav ms-auto align-items-center">
                         <li className="nav-item">
-                            <Link className="nav-link fw-semibold text-dark" href="#">Dashboard</Link>
+                            <Link className="nav-link fw-semibold text-dark" href="/main/dashboard">Dashboard</Link>
                         </li>
                         <li className="nav-item">
-                            <Link className="nav-link fw-semibold text-dark" href="#">Attendees</Link>
+                            <Link className="nav-link fw-semibold text-dark" href="/main/attendance">Attendees</Link>
                         </li>
                         <li className="nav-item">
                             <Link className="nav-link fw-semibold text-dark" href="#">Schedule</Link>

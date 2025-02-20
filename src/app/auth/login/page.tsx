@@ -17,7 +17,7 @@ const Login = () => {
                 </div>
 
                 {/* Login Card */}
-                <div className="p-4" style={{ width: "450px" }}>
+                <div className="p-4" style={{ width: "450px", maxWidth: '90%', margin: '0 auto' }}>
                     <div className="text-center mb-3" style={{ fontSize: 27, fontWeight: 400 }}>Log In for Attendance Pass</div>
 
                     <div className="mb-3">

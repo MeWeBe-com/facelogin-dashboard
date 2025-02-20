@@ -1,0 +1,26 @@
+.uploadBox {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    border: 1px solid grey;
+    border-radius: 10px;
+}
+
+.uploadBox:hover {
+    cursor: pointer;
+    border-color: var(--primary);
+}
+
+.cancelBtn{
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.loginBtn{
+    color: #fff;
+    background-color: var(--primary)!important;
+}
+
+.dflex div{
+    width: calc(100% / 2.2);
+}
