@@ -1,0 +1,29 @@
+.btnColor {
+    color: #fff;
+    background: var(--primary);
+}
+
+.btnColor:hover {
+    color: #fff;
+    background: var(--primary);
+    opacity: .7;
+}
+
+.btnOutline {
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.btnOutline2 {
+    color: var(--primary);
+}
+
+.btnDanger {
+    color: #dc3545;
+}
+
+.btnOutline:hover {
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    opacity: .7;
+}
