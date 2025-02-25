@@ -1,21 +1,23 @@
 "use client"
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import styles from "./style.module.css";
 
 const Header = () => {
 
+    const [isOpen, setIsOpen] = useState(false);
+
+    const closeNavbar = () => setIsOpen(false);
+
     return (
         <nav className="navbar navbar-expand-lg bg-white border-bottom px-3">
             <div className="container d-flex justify-content-between align-items-center">
-
-                {/* Left: Logo & Brand Name */}
                 <div className="d-flex align-items-center">
                     <Image src="/imgs/logo.png" alt="Logo" width={50} height={50} priority />
                     <span className="fw-bold ms-2">Izza Mixed Martial Arts</span>
                 </div>
 
-                {/* Mobile Menu Button */}
                 <button
                     className="navbar-toggler"
                     type="button"
@@ -24,41 +26,47 @@ const Header = () => {
                     aria-controls="navbarNav"
                     aria-expanded="false"
                     aria-label="Toggle navigation"
+                    onClick={() => setIsOpen(!isOpen)}
                 >
                     <span className="navbar-toggler-icon"></span>
                 </button>
 
-                {/* Navigation Links (Aligned to Right) */}
-                <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
-                    <ul className="navbar-nav ms-auto align-items-center">
+                <div className={`collapse navbar-collapse justify-content-end ${isOpen ? "show" : ""}`} id="navbarNav">
+                    <ul className="navbar-nav ms-auto align-items-center gap-4">
                         <li className="nav-item">
-                            <Link className="nav-link fw-semibold text-dark" href="/main/dashboard">Dashboard</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link className="nav-link fw-semibold text-dark" href="/main/attendance">Attendees</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link className="nav-link fw-semibold text-dark" href="/main/schedule">Schedule</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link className="nav-link fw-semibold text-dark" href="/main/reports">Reports</Link>
-                        </li>
-                        <li className="nav-item">
-                            <Link className="nav-link fw-semibold text-dark" href="#">Scanner</Link>
+                            <Link className="nav-link fw-semibold text-dark" href="/main/dashboard" onClick={closeNavbar}>Dashboard</Link>
                         </li>
 
                         <li className="nav-item">
-                            <Link className="nav-link" href="#">
+                            <Link className="nav-link fw-semibold text-dark" href="/main/attendance" onClick={closeNavbar}>Attendees</Link>
+                        </li>
+
+                        <li className="nav-item">
+                            <Link className="nav-link fw-semibold text-dark" href="/main/schedule" onClick={closeNavbar}>Schedule</Link>
+                        </li>
+
+                        <li className="nav-item">
+                            <Link className="nav-link fw-semibold text-dark" href="/main/reports" onClick={closeNavbar}>Reports</Link>
+                        </li>
+
+                        <li className="nav-item">
+                            <Link className="nav-link fw-semibold text-dark" href="">Scanner</Link>
+                        </li>
+
+                        <li className="nav-item">
+                            <Link className="nav-link" href="#" onClick={closeNavbar}>
                                 <i className={`bi bi-info-circle-fill ${styles.iconColor}`}></i>
                             </Link>
                         </li>
+
                         <li className="nav-item">
-                            <Link className="nav-link" href="#">
+                            <Link className="nav-link" href="/main/settings" onClick={closeNavbar}>
                                 <i className={`bi bi-gear-fill ${styles.iconColor}`}></i>
                             </Link>
                         </li>
+
                         <li className="nav-item">
-                            <Link className="nav-link" href="#">
+                            <Link className="nav-link" href="#" onClick={closeNavbar}>
                                 <i className={`bi bi-person-circle ${styles.iconColor}`}></i>
                             </Link>
                         </li>
