@@ -16,3 +16,21 @@
 .formBox{
     max-width: 400px;
 }
+
+.btnColor {
+    color: #fff;
+    background: var(--primary);
+}
+
+.btnColor:hover {
+    color: #fff;
+    background: var(--primary);
+    opacity: .7;
+}
+
+.customTooltip {
+    --bs-tooltip-bg: #f1f1f1;
+    --bs-tooltip-color: #000;
+    border-radius:  10px;
+    box-shadow: 0 0 5px -2px #000;
+  }

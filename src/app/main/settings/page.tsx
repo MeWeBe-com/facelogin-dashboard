@@ -32,7 +32,23 @@ export default function Reports() {
                         </div>
 
                         <div className="form-group mb-3">
-                            <label htmlFor="exampleFormControlSelect1">Pass Issue Type:</label>
+                            <label htmlFor="exampleFormControlSelect1">
+                                Pass Issue Type:
+
+                                <button
+                                    className="btn"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="bottom"
+                                    data-bs-custom-class={styles.customTooltip}
+                                    title="
+                                    A pass can be of two types.  Setting it to Multi-Use will ensure that all passes for an Attendee share the same QR code, whereas setting to Single-Use will ensure every QR code associated with a pass is unique.  See Settings help article for more info."
+                                >
+                                    <i className="bi bi-info-circle"></i>
+                                </button>
+
+                            </label>
+
+
                             <select className="form-control" id="exampleFormControlSelect1">
                                 <option>1</option>
                                 <option>2</option>
@@ -41,11 +57,14 @@ export default function Reports() {
                                 <option>5</option>
                             </select>
                         </div>
-
                     </div>
                 </div>
 
 
+            </div>
+
+            <div className="container my-3 d-flex">
+                <button type="button" style={{ marginRight: 20 }} className={`btn ${styles.btnColor}`}>Save Settings</button>
             </div>
         </>
     )
