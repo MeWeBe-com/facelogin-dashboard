@@ -41,7 +41,7 @@ const Header = () => {
                             <Link className="nav-link fw-semibold text-dark" href="/main/schedule">Schedule</Link>
                         </li>
                         <li className="nav-item">
-                            <Link className="nav-link fw-semibold text-dark" href="#">Reports</Link>
+                            <Link className="nav-link fw-semibold text-dark" href="/main/reports">Reports</Link>
                         </li>
                         <li className="nav-item">
                             <Link className="nav-link fw-semibold text-dark" href="#">Scanner</Link>

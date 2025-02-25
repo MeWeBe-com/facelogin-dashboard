@@ -62,6 +62,11 @@ export default function Attendance() {
         setSelectedValue(event.target.value);
     };
 
+    const handleDateClick = (evt: any) => {
+        console.log('date clicked', evt);
+        openModal('Add Event')
+    }
+
 
     return (
         <>
@@ -82,6 +87,8 @@ export default function Attendance() {
                     events={events}
                     eventContent={RenderEventContent}
                     eventClick={handleEventClick}
+                    dateClick={handleDateClick}
+                    editable={true}
                 />
             </div>
 
