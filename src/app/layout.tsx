@@ -3,8 +3,7 @@
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import "bootstrap/dist/css/bootstrap.min.css"
 import "./globals.css";
-
-import { useEffect } from "react";
+import BootstrapClient from '@/components/BootstrapClient/BootstrapClient';
 
 
 export default function RootLayout({
@@ -12,15 +11,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  useEffect(() => {
-    import("bootstrap/dist/js/bootstrap.bundle.min").then((bootstrap) => {
-      window.bootstrap = bootstrap; // ✅ Make Bootstrap available globally
-    });
-  }, []);
 
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {children}
+        <BootstrapClient />
+      </body>
     </html>
   );
 }
