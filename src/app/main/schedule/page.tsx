@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import styles from './schedule.module.css';
 
 import FullCalendar from '@fullcalendar/react'
@@ -16,7 +16,7 @@ const events = [
 ]
 
 export default function Attendance() {
-    const [modalType, setModalType] = useState<any>('Update Event');
+    const [modalType, setModalType] = useState<string>('Update Event');
 
     const RenderEventContent = (eventInfo: any) => {
         return (

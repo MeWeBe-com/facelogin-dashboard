@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from 'react';
+
 import styles from './attendance.module.css';
 
 export default function Attendance() {
