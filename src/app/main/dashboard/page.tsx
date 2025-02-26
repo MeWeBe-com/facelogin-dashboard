@@ -48,10 +48,10 @@ export default function Dashboard() {
     }
 
     const removeAttendee = (selectedClassIndex: number, selectedUserIndex: number) => {
-        setClasses((prevClasses: any) =>
-            prevClasses.map((cls: any, index: number) =>
+        setClasses((prevClasses:any) =>
+            prevClasses.map((cls:any, index: number) =>
                 index === selectedClassIndex
-                    ? { ...cls, attendees: cls.attendees.filter((_: any, i: number) => i !== selectedUserIndex) }
+                    ? { ...cls, attendees: cls.attendees.filter((_:any, i:number) => i !== selectedUserIndex) }
                     : cls
             )
         );
@@ -81,8 +81,7 @@ export default function Dashboard() {
     const fetchData = async (data: any) => {
         try {
             const response = await Http.post(`GetAllEventsByOrganizationIDandDate`, data);
-            console.log(response)
-            setSelectedClass
+            setSelectedClass(0);
             setClasses(response.data.events);
         } catch (err) {
             console.error(err);
