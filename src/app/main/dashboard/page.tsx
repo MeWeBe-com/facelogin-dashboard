@@ -4,21 +4,57 @@ import { useEffect, useState } from 'react';
 import styles from './dashbaord.module.css';
 import Http from "@/providers/axiosInstance";
 import { redirect } from "next/navigation";
+import { useCookies } from 'next-client-cookies';
+import { toast } from 'react-toastify';
 
 
 export default function Dashboard() {
+    const cookies = useCookies();
     const [today, setToday] = useState<Date>(new Date());
     const [debouncedDate, setDebouncedDate] = useState<Date>(today);
 
     const [classes, setClasses] = useState<any>([]);
     const [selectedClass, setSelectedClass] = useState<number>(0);
+    const [selectedUser, setSelectedUser] = useState<any>(null);
 
-    const openModal = () => {
+    const openModal = (user: any, index: number) => {
+        setSelectedUser({ user: user, index: index });
         const modalElement = document.getElementById("deleteModal");
         if (modalElement && window.bootstrap) {
             const modal = new window.bootstrap.Modal(modalElement);
             modal.show();
         }
+    };
+
+    const closeModal = () => {
+        const modalElement = document.getElementById("deleteModal");
+        if (modalElement && window.bootstrap) {
+            const modal = window.bootstrap.Modal.getInstance(modalElement); // Get existing modal instance
+            if (modal) {
+                modal.hide();
+            }
+        }
+    };
+
+    const removeUser = async () => {
+        const res = await Http.get(`RemoveAttendeeFromEvent/${selectedUser.user.user_event_id}`);
+        if (res && res.status == true) {
+            removeAttendee(selectedClass, selectedUser.index);
+            closeModal();
+            toast.success(res.data.message);
+        } else {
+            toast.error(res.data.message);
+        }
+    }
+
+    const removeAttendee = (selectedClassIndex: number, selectedUserIndex: number) => {
+        setClasses((prevClasses: any) =>
+            prevClasses.map((cls: any, index: number) =>
+                index === selectedClassIndex
+                    ? { ...cls, attendees: cls.attendees.filter((_: any, i: number) => i !== selectedUserIndex) }
+                    : cls
+            )
+        );
     };
 
     useEffect(() => {
@@ -30,7 +66,7 @@ export default function Dashboard() {
     }, [today]);
 
     useEffect(() => {
-        let id = localStorage.getItem('org_id');
+        let id = cookies.get('org_id');
         if (id) {
             let data = {
                 org_id: id,
@@ -139,7 +175,7 @@ export default function Dashboard() {
                                         {item.attendee_name}
                                     </div>
 
-                                    <div onClick={() => openModal()}>
+                                    <div onClick={() => openModal(item, i)}>
                                         <i className="bi bi-x-circle-fill text-danger"></i>
                                     </div>
                                 </div>
@@ -157,12 +193,14 @@ export default function Dashboard() {
 
                         <div className="modal-body">
                             <div className='text-center'>
-                                Are you sure you want to delete  an Attendance Record on February 24, 2025 for Fawad Akram
+                                Are you sure you want to delete an Attendance Record on
+                                {' ' + new Date(today).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', }) + ' '}
+                                for <br /> {selectedUser?.user?.attendee_name}
                             </div>
                         </div>
                         <div className="modal-footer">
                             <button type="button" className={`btn ${styles.btnOutline}`} data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" className={`btn ${styles.btnColor}`}>Yes</button>
+                            <button type="button" className={`btn ${styles.btnColor}`} onClick={() => removeUser()}>Yes</button>
                         </div>
                     </div>
                 </div>
