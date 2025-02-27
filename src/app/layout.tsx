@@ -1,10 +1,9 @@
-"use client";
-
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import "bootstrap/dist/css/bootstrap.min.css"
 import "./globals.css";
 import BootstrapClient from '@/components/BootstrapClient/BootstrapClient';
 import { ToastContainer } from 'react-toastify';
+import { CookiesProvider } from 'next-client-cookies/server';
 
 export default function RootLayout({
   children,
@@ -15,7 +14,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
+        <CookiesProvider>
+          {children}
+        </CookiesProvider>
         <BootstrapClient />
         <ToastContainer />
       </body>
