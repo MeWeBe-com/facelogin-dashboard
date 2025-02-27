@@ -10,11 +10,11 @@ import dayGridPlugin from "@fullcalendar/daygrid"; // For month view
 import timeGridPlugin from "@fullcalendar/timegrid"; // For week & day views
 import interactionPlugin from "@fullcalendar/interaction";
 
-let events = [
-    { title: 'Meeting', start: new Date('Thu Feb 02 2025 20:00:00 GMT+0500 (Pakistan Standard Time)') },
-    { title: 'Meeting 1', start: new Date('Thu Feb 03 2025 20:00:00 GMT+0500 (Pakistan Standard Time)') },
-    { title: 'Meeting 2', start: new Date('Thu Feb 03 2025 20:00:00 GMT+0500 (Pakistan Standard Time)') }
-]
+// let events = [
+//     { title: 'Meeting', start: new Date('Thu Feb 02 2025 20:00:00 GMT+0500 (Pakistan Standard Time)') },
+//     { title: 'Meeting 1', start: new Date('Thu Feb 03 2025 20:00:00 GMT+0500 (Pakistan Standard Time)') },
+//     { title: 'Meeting 2', start: new Date('Thu Feb 03 2025 20:00:00 GMT+0500 (Pakistan Standard Time)') }
+// ]
 
 export default function Attendance() {
     const cookies = useCookies();
@@ -27,41 +27,63 @@ export default function Attendance() {
 
     const [modalType, setModalType] = useState<string>('Update Event');
 
+    const [instructors, setInstructors] = useState<any>([]);
+
+    const [addClassData, setAddClassData] = useState<any>({
+
+        id: "",
+        organization_id: cookies.get('org_id'),
+        user_id: "1",
+        event_type_id: "1",
+        event_name: "1",
+        event_date: "1",
+        event_start_time: "1",
+        event_end_time: "1"
+
+    })
+
     useEffect(() => {
         let id = cookies.get('org_id');
         if (id) {
             getClassesType(id);
             getClasses(id);
+            getInstructors(id);
         } else {
             toast.error('Something went wrong!');
         }
     }, [])
 
-    const getClasses = async (orgId: any) => {
-        let res = await Http.get(`GetAllEventsByOrganizationID/${orgId}`);
-        // console.log(res)
+    const getClassesType = async (orgId: any) => {
+        let res = await Http.get(`GetAllEventsTypes/${orgId}`);
         if (res && res.status == true) {
-            setClasses(res.data.events);
-            // let arr:any = formatEvents(classes);
-            // setMyClasses(arr);
-            // console.log(myClasses, arr)
+            setClassesTypes(res.data.event_types);
         }
     }
 
-    const getClassesType = async (orgId: any) => {
-        let res = await Http.get(`GetAllEventsTypes/${orgId}`);
-        console.log('type', res)
+    const getInstructors = async (ordIg: any) => {
+        let res = await Http.get(`getInstructorByOrganizationID/${ordIg}`);
         if (res && res.status == true) {
-            setClassesTypes(res.data.event_types);
+            setInstructors(res.data.instructor);
+        }
+    }
+
+    const getClasses = async (orgId: any) => {
+        let res = await Http.get(`GetAllEventsByOrganizationID/${orgId}`);
+        if (res && res.status == true) {
+            setClasses(res.data.events);
+            let arr: any = formatEvents(res.data.events);
+            // setMyClasses(arr);
+            // console.log(myClasses, arr)
         }
     }
 
     const formatEvents = (classArr: any) => {
         let arr: any = [];
         classArr.forEach((item: any) => {
-            arr.push({ title: item.event_name, start: new Date(item.event_date) })
+            console.log(new Date(item.event_date))
+            arr.push({ id: item.id, title: item.event_name, start: new Date(item.event_date_time) })
         });
-
+        console.log(arr);
         return arr;
     }
 
@@ -127,7 +149,6 @@ export default function Attendance() {
         setClassTypeName(event.target.value);
     };
 
-
     const updateEventType = async () => {
         console.log(selectedClassType, classTypeName);
 
@@ -137,7 +158,7 @@ export default function Attendance() {
             event_type_name: classTypeName
         };
         let res = await Http.post('AddEditEventsTypes', data);
-        if(res && res.status == true){
+        if (res && res.status == true) {
             setSelectedClassType(null);
             setClassTypeName('');
             setIsEditable(false);
@@ -147,9 +168,33 @@ export default function Attendance() {
                 getClassesType(id);
             }
             toast.success(res.data.message)
-        }else{
+        } else {
             toast.error(res.data.message)
         }
+    }
+
+    const handleClassTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        console.log(e.target.value)
+    };
+
+    const handleInstructorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        console.log(e.target.value)
+    };
+
+    const handleStartDate = (e:any)=>{
+
+    }
+
+    const handleStartTime = (e:any)=>{
+
+    }
+
+    const handleEndDate = (e:any)=>{
+
+    }
+
+    const handleEndTime = (e:any)=>{
+
     }
 
 
@@ -170,7 +215,7 @@ export default function Attendance() {
                         right: "dayGridMonth,timeGridWeek,timeGridDay",
                     }}
                     weekends={true}
-                    events={events}
+                    events={classes}
                     eventContent={RenderEventContent}
                     eventClick={handleEventClick}
                     dateClick={handleDateClick}
@@ -194,35 +239,49 @@ export default function Attendance() {
 
                             <div>
                                 <div className="form-group mb-3">
-                                    <label htmlFor="exampleFormControlSelect1">Event Type</label>
-                                    <select className="form-control" id="exampleFormControlSelect1">
-                                        <option>1</option>
-                                        <option>2</option>
-                                        <option>3</option>
-                                        <option>4</option>
-                                        <option>5</option>
+                                    <label htmlFor="exampleFormControlSelect1">Class Type</label>
+                                    <select className="form-select" onChange={handleClassTypeChange} defaultValue="">
+                                        <option value="" disabled>Choose an Event Type to Edit or Delete</option>
+                                        {
+                                            classesTypes &&
+                                            classesTypes.map((item: any, i: number) => (
+                                                <option value={item.id} key={i}>{item.event_type_name}</option>
+                                            ))
+                                        }
                                     </select>
                                 </div>
 
                                 <div className="form-group mb-3">
                                     <label htmlFor="exampleFormControlSelect1">Instructor</label>
-                                    <select className="form-control" id="exampleFormControlSelect1">
-                                        <option>1</option>
-                                        <option>2</option>
-                                        <option>3</option>
-                                        <option>4</option>
-                                        <option>5</option>
+                                    <select className="form-control" onChange={handleInstructorChange} defaultValue="">
+                                    <option value="" disabled>Choose an Instructor</option>
+                                        {
+                                            instructors &&
+                                            instructors.map((item: any, i: number) => (
+                                                <option value={item.id} key={i}>{item.fullname}</option>
+                                            ))
+                                        }                                        
                                     </select>
                                 </div>
 
                                 <div className="mb-3">
-                                    <label className="form-label">Start Date / Time</label>
-                                    <input type="datetime-local" className={`form-control ${styles.myInput}`} />
+                                    <label className="form-label">Start Date</label>
+                                    <input type="date" className={`form-control ${styles.myInput}`} onChange={handleStartDate}/>
+                                </div>
+
+                                <div className="mb-3">
+                                    <label className="form-label">Start Time</label>
+                                    <input type="time" className={`form-control ${styles.myInput}`} onChange={handleStartTime}/>
                                 </div>
 
                                 <div className="mb-3">
                                     <label className="form-label">End Date / Time</label>
-                                    <input type="datetime-local" className={`form-control ${styles.myInput}`} />
+                                    <input type="date" className={`form-control ${styles.myInput}`} onChange={handleEndDate}/>
+                                </div>
+
+                                <div className="mb-3">
+                                    <label className="form-label">End Time</label>
+                                    <input type="time" className={`form-control ${styles.myInput}`} onChange={handleEndDate}/>
                                 </div>
 
                             </div>
