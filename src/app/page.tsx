@@ -9,7 +9,7 @@ export default function Home() {
   const cookies = useCookies();
   const searchParams = useSearchParams();
   const id = searchParams.get('org_id'); 
-  
+    console.log(id)
   if (id) {
     cookies.set('org_id', id)
     redirect("/main/dashboard"); // Redirects users to the login page

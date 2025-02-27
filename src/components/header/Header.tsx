@@ -14,8 +14,10 @@ const Header = () => {
         <nav className="navbar navbar-expand-lg bg-white border-bottom px-3">
             <div className="container d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center">
-                    <Image src="/imgs/logo.png" alt="Logo" width={50} height={50} priority />
-                    <span className="fw-bold ms-2">Izza Mixed Martial Arts</span>
+                    <Link href="/main/dashboard" style={{ textDecoration: 'none' }}>
+                        <Image src="/imgs/logo.png" alt="Logo" width={50} height={50} priority />
+                        <span className="fw-bold ms-2 text-dark" >Izza Mixed Martial Arts</span>
+                    </Link>
                 </div>
 
                 <button
@@ -38,7 +40,7 @@ const Header = () => {
                         </li>
 
                         <li className="nav-item">
-                            <Link className="nav-link fw-semibold text-dark" href="/main/attendance" onClick={closeNavbar}>Attendees</Link>
+                            <Link className="nav-link fw-semibold text-dark" href="/main/attendees" onClick={closeNavbar}>Attendees</Link>
                         </li>
 
                         <li className="nav-item">
