@@ -49,6 +49,9 @@ export default function Attendance() {
         event_end_time: selectedClass?.event_end_time || "",
     };
 
+    const [attendeesClass, setAttendeesClass] = useState<any>(null);
+    const [attendees, setAttendees] = useState<any>([]);
+
     useEffect(() => {
         let id = cookies.get('org_id');
         if (id) {
@@ -78,7 +81,6 @@ export default function Attendance() {
         let res = await Http.get(`GetAllEventByOrgID/${orgId}`);
         if (res && res.status == true) {
             let arr: any = formatEvents(res.data.events);
-            console.log(arr);
             setClasses(arr);
         }
     }
@@ -107,7 +109,7 @@ export default function Attendance() {
     };
 
     const handleDateClick = (evt: any) => {
-        console.log('date clicked', evt);
+        //console.log('date clicked', evt);
         //openModal('Add Event')
     }
 
@@ -121,7 +123,6 @@ export default function Attendance() {
     };
 
     const openAddEvetModal = () => {
-        console.log('type')
         const modalElement = document.getElementById("addEventModal");
         if (modalElement && window.bootstrap) {
             const modal = new window.bootstrap.Modal(modalElement);
@@ -204,8 +205,49 @@ export default function Attendance() {
         }
     }
 
-    const openCheckinModal = ()=>{
+    const openCheckinModal = () => {
+        if (selectedClass) {
+            setAttendeesClass(selectedClass);
+            closeModal('editModal');
+            const modalElement = document.getElementById("checkInModal");
+            if (modalElement && window.bootstrap) {
+                const modal = new window.bootstrap.Modal(modalElement);
+                modal.show();
+            }
+        }
+    }
 
+    const handleAttendeeCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const attendeeId = e.target.value; // Get the attendee's ID or value
+        const isChecked = e.target.checked; // Check if the checkbox is checked or unchecked
+
+        if (isChecked) {
+            setAttendees((prevState: any) => [...prevState, attendeeId]);
+        } else {
+            setAttendees((prevState: any) => prevState.filter((id: any) => id !== attendeeId));
+        }
+    };
+
+    const saveAttendees = async () => {
+        if (attendees.length == 0) {
+            toast.error('Please select Attendees');
+            return
+        }
+        let data = {
+            user_id: attendees,
+            event_id: attendeesClass.id,
+            organization_id: cookies.get('org_id')
+        };
+        let res = await Http.post('UserCheckin', data);
+
+        if (res && res.status == true) {
+            setAttendeesClass(null);
+            setAttendees([]);
+            closeModal('checkInModal');
+            toast.success(res.data.message);
+        } else {
+            toast.error('Something went worng!');
+        }
     }
 
     return (
@@ -302,7 +344,7 @@ export default function Attendance() {
 
                                     <div className="modal-footer d-flex align-items-center justify-content-between">
                                         <button type="button" className={`btn ${styles.btnDanger}`} onClick={() => deleteClass()}>Delete</button>
-                                        <button type="button" className={`btn ${styles.btnOutline2}`}>Check-In</button>
+                                        <button type="button" className={`btn ${styles.btnOutline2}`} onClick={() => openCheckinModal()}>Check-In</button>
 
                                         <button type="button" className={`btn ${styles.btnOutline}`} onClick={() => closeModal('editModal')}>Cancel</button>
                                         <button type="submit" className={`btn ${styles.btnColor}`} disabled={isSubmitting}>Save</button>
@@ -390,57 +432,23 @@ export default function Attendance() {
                             </h5>
 
                             <div>
-                                <div className="mb-3">
-                                    <label className="form-label">Select Event</label>
-                                    <div className="input-group">
-                                        {isEditable ? (
-                                            <input
-                                                type="text"
-                                                className="form-control"
-                                                value={classTypeName}
-                                                onChange={handleInputChange}
-                                            />
-                                        ) : (
-                                            <select className="form-select" onChange={handleSelectChange} defaultValue="">
-                                                <option value="" disabled>Choose an Event Type to Edit or Delete</option>
-                                                {
-                                                    classesTypes &&
-                                                    classesTypes.map((item: any, i: number) => (
-                                                        <option value={item.id} key={i}>{item.event_type_name}</option>
-                                                    ))
-                                                }
-
-                                            </select>
-                                        )}
-                                        {isEditable &&
-                                            <>
-                                                <button type="button" className="btn btn-outline-danger" onClick={() => setIsEditable(false)}>
-                                                    <i className="bi bi-trash-fill"></i>
-                                                </button>
-
-                                                <button type="button" className="btn btn-outline-success" onClick={() => updateEventType()}>
-                                                    <i className="bi bi-check-circle-fill"></i>
-                                                </button>
-
-                                                <button type="button" className="btn btn-outline-secondary" onClick={() => setIsEditable(false)}>
-                                                    <i className="bi bi-x-circle"></i>
-                                                </button>
-                                            </>
-                                        }
-
-                                        <button type="button" className="btn btn-outline-secondary" onClick={() => setIsEditable(true)}>
-                                            <i className="bi bi-pencil-square"></i>
-                                        </button>
-
-                                    </div>
-                                </div>
-
+                                {
+                                    attendeesClass &&
+                                    attendeesClass?.attendee_event_users.map((item: any, i: number) => (
+                                        <div className="form-check" key={i}>
+                                            <input className="form-check-input" type="checkbox" value={item.user_event_id} id={'flexCheckDefault' + i} onChange={handleAttendeeCheck} />
+                                            <label className="form-check-label" htmlFor={'flexCheckDefault' + i}>
+                                                {item.attendee_name}
+                                            </label>
+                                        </div>
+                                    ))
+                                }
                             </div>
                         </div>
 
-                        <div className="modal-footer">
-
-                            <button type="button" className={`btn ${styles.btnOutline}`} data-bs-dismiss="modal">Cancel</button>
+                        <div className="modal-footer d-flex align-items-center justify-content-between">
+                            <button type="button" className={`btn ${styles.btnOutline}`} onClick={() => closeModal('checkInModal')}>Cancel</button>
+                            <button type="button" className={`btn ${styles.btnColor}`} onClick={() => saveAttendees()}>Save</button>
                         </div>
                     </div>
                 </div>
