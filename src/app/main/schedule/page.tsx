@@ -4,17 +4,15 @@ import styles from './schedule.module.css';
 import Http from '@/providers/axiosInstance';
 import { useCookies } from 'next-client-cookies';
 import { toast } from 'react-toastify';
+import { ErrorMessage, Formik } from 'formik';
+import * as Yup from 'yup';
 
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from "@fullcalendar/daygrid"; // For month view
 import timeGridPlugin from "@fullcalendar/timegrid"; // For week & day views
 import interactionPlugin from "@fullcalendar/interaction";
 
-// let events = [
-//     { title: 'Meeting', start: new Date('Thu Feb 02 2025 20:00:00 GMT+0500 (Pakistan Standard Time)') },
-//     { title: 'Meeting 1', start: new Date('Thu Feb 03 2025 20:00:00 GMT+0500 (Pakistan Standard Time)') },
-//     { title: 'Meeting 2', start: new Date('Thu Feb 03 2025 20:00:00 GMT+0500 (Pakistan Standard Time)') }
-// ]
+let events: any = [];
 
 export default function Attendance() {
     const cookies = useCookies();
@@ -29,17 +27,26 @@ export default function Attendance() {
 
     const [instructors, setInstructors] = useState<any>([]);
 
-    const [addClassData, setAddClassData] = useState<any>({
+    const validationSchema = Yup.object().shape({
+        id: Yup.string(),
+        organization_id: Yup.string().required('Ogranization ID is required'),
+        event_type_id: Yup.string().required('Class type  is required'),
+        user_id: Yup.string().required('Instructor is required'),
+        event_start_date: Yup.string().required('Start Date  is required'),
+        event_start_time: Yup.string().required('Start Time is required'),
+        event_end_date: Yup.string().required('End Date  is required'),
+        event_end_time: Yup.string().required('End Time  is required'),
+    });
 
+    const [addClassData, setAddClassData] = useState<any>({
         id: "",
         organization_id: cookies.get('org_id'),
-        user_id: "1",
         event_type_id: "1",
-        event_name: "1",
-        event_date: "1",
+        user_id: "1",
+        event_start_date: "1",
         event_start_time: "1",
+        event_end_date: "1",
         event_end_time: "1"
-
     })
 
     useEffect(() => {
@@ -72,18 +79,15 @@ export default function Attendance() {
         if (res && res.status == true) {
             setClasses(res.data.events);
             let arr: any = formatEvents(res.data.events);
-            // setMyClasses(arr);
-            // console.log(myClasses, arr)
+            events = arr;
         }
     }
 
     const formatEvents = (classArr: any) => {
         let arr: any = [];
         classArr.forEach((item: any) => {
-            console.log(new Date(item.event_date))
             arr.push({ id: item.id, title: item.event_name, start: new Date(item.event_date_time) })
         });
-        console.log(arr);
         return arr;
     }
 
@@ -105,8 +109,6 @@ export default function Attendance() {
         console.log('date clicked', evt);
         openModal('Add Event')
     }
-
-
 
     const openModal = (type: string) => {
         setModalType(type);
@@ -173,28 +175,19 @@ export default function Attendance() {
         }
     }
 
-    const handleClassTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        console.log(e.target.value)
+
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = event.target;
+        setAddClassData((prevData: any) => ({
+            ...prevData,
+            [name]: value,
+        }));
     };
 
-    const handleInstructorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        console.log(e.target.value)
-    };
-
-    const handleStartDate = (e:any)=>{
-
-    }
-
-    const handleStartTime = (e:any)=>{
-
-    }
-
-    const handleEndDate = (e:any)=>{
-
-    }
-
-    const handleEndTime = (e:any)=>{
-
+    const saveClass = async (values:any) => {
+        console.log(values);
+        // let res = await Http.post('AddEditEvents', addClassData);
+        // console.log(res)
     }
 
 
@@ -215,7 +208,7 @@ export default function Attendance() {
                         right: "dayGridMonth,timeGridWeek,timeGridDay",
                     }}
                     weekends={true}
-                    events={classes}
+                    events={events}
                     eventContent={RenderEventContent}
                     eventClick={handleEventClick}
                     dateClick={handleDateClick}
@@ -231,69 +224,91 @@ export default function Attendance() {
             <div className="modal fade" id="editModal" tabIndex={-1} aria-labelledby="editModalLabel" aria-hidden="true">
                 <div className="modal-dialog">
                     <div className="modal-content">
+                        <Formik
+                            initialValues={{
+                                id: "",
+                                organization_id: cookies.get('org_id'),
+                                event_type_id: "",
+                                user_id: "",
+                                event_start_date: "",
+                                event_start_time: "",
+                                event_end_date: "",
+                                event_end_time: ""
+                            }}
+                            validationSchema={validationSchema}
+                            onSubmit={saveClass}
+                        >
+                            {({ isSubmitting }) => (
 
-                        <div className="modal-body">
-                            <h5 className='text-center fw-bold'>
-                                {modalType}
-                            </h5>
+                                <form>
+                                    <div className="modal-body">
+                                        <h5 className='text-center fw-bold'>
+                                            {modalType}
+                                        </h5>
 
-                            <div>
-                                <div className="form-group mb-3">
-                                    <label htmlFor="exampleFormControlSelect1">Class Type</label>
-                                    <select className="form-select" onChange={handleClassTypeChange} defaultValue="">
-                                        <option value="" disabled>Choose an Event Type to Edit or Delete</option>
-                                        {
-                                            classesTypes &&
-                                            classesTypes.map((item: any, i: number) => (
-                                                <option value={item.id} key={i}>{item.event_type_name}</option>
-                                            ))
-                                        }
-                                    </select>
-                                </div>
+                                        <div>
+                                            <div className="form-group mb-3">
+                                                <label htmlFor="exampleFormControlSelect1">Class Type</label>
+                                                <select className="form-select" name="event_type_id" onChange={handleChange} defaultValue="">
+                                                    <option value="" disabled>Choose an Event Type to Edit or Delete</option>
+                                                    {
+                                                        classesTypes &&
+                                                        classesTypes.map((item: any, i: number) => (
+                                                            <option value={item.id} key={i}>{item.event_type_name}</option>
+                                                        ))
+                                                    }
+                                                </select>
 
-                                <div className="form-group mb-3">
-                                    <label htmlFor="exampleFormControlSelect1">Instructor</label>
-                                    <select className="form-control" onChange={handleInstructorChange} defaultValue="">
-                                    <option value="" disabled>Choose an Instructor</option>
-                                        {
-                                            instructors &&
-                                            instructors.map((item: any, i: number) => (
-                                                <option value={item.id} key={i}>{item.fullname}</option>
-                                            ))
-                                        }                                        
-                                    </select>
-                                </div>
+                                                <ErrorMessage name="event_type_id" component="div" />
+                                            </div>
 
-                                <div className="mb-3">
-                                    <label className="form-label">Start Date</label>
-                                    <input type="date" className={`form-control ${styles.myInput}`} onChange={handleStartDate}/>
-                                </div>
+                                            <div className="form-group mb-3">
+                                                <label htmlFor="exampleFormControlSelect1">Instructor</label>
+                                                <select className="form-control" name="user_id" onChange={handleChange} defaultValue="">
+                                                    <option value="" disabled>Choose an Instructor</option>
+                                                    {
+                                                        instructors &&
+                                                        instructors.map((item: any, i: number) => (
+                                                            <option value={item.id} key={i}>{item.fullname}</option>
+                                                        ))
+                                                    }
+                                                </select>
+                                            </div>
 
-                                <div className="mb-3">
-                                    <label className="form-label">Start Time</label>
-                                    <input type="time" className={`form-control ${styles.myInput}`} onChange={handleStartTime}/>
-                                </div>
+                                            <div className="mb-3">
+                                                <label className="form-label">Start Date</label>
+                                                <input type="date" className={`form-control ${styles.myInput}`} name="event_start_date" onChange={handleChange} />
+                                            </div>
 
-                                <div className="mb-3">
-                                    <label className="form-label">End Date / Time</label>
-                                    <input type="date" className={`form-control ${styles.myInput}`} onChange={handleEndDate}/>
-                                </div>
+                                            <div className="mb-3">
+                                                <label className="form-label">Start Time</label>
+                                                <input type="time" className={`form-control ${styles.myInput}`} name="event_start_time" onChange={handleChange} />
+                                            </div>
 
-                                <div className="mb-3">
-                                    <label className="form-label">End Time</label>
-                                    <input type="time" className={`form-control ${styles.myInput}`} onChange={handleEndDate}/>
-                                </div>
+                                            <div className="mb-3">
+                                                <label className="form-label">End Date / Time</label>
+                                                <input type="date" className={`form-control ${styles.myInput}`} name="event_end_date" onChange={handleChange} />
+                                            </div>
 
-                            </div>
-                        </div>
+                                            <div className="mb-3">
+                                                <label className="form-label">End Time</label>
+                                                <input type="time" className={`form-control ${styles.myInput}`} name="event_end_time" onChange={handleChange} />
+                                            </div>
+                                        </div>
 
-                        <div className="modal-footer d-flex align-items-center justify-content-between">
-                            <button type="button" className={`btn ${styles.btnDanger}`}>Delete</button>
-                            <button type="button" className={`btn ${styles.btnOutline2}`}>Check-In</button>
+                                    </div>
 
-                            <button type="button" className={`btn ${styles.btnOutline}`} data-bs-dismiss="modal">Cancel</button>
-                            <button type="button" className={`btn ${styles.btnColor}`}>Save</button>
-                        </div>
+                                    <div className="modal-footer d-flex align-items-center justify-content-between">
+                                        <button type="button" className={`btn ${styles.btnDanger}`}>Delete</button>
+                                        <button type="button" className={`btn ${styles.btnOutline2}`}>Check-In</button>
+
+                                        <button type="button" className={`btn ${styles.btnOutline}`} data-bs-dismiss="modal">Cancel</button>
+                                        <button className={`btn ${styles.btnColor}`}  type="submit" disabled={isSubmitting}>Save</button>
+                                    </div>
+
+                                </form>
+                            )}
+                        </Formik>
                     </div>
                 </div>
             </div>
