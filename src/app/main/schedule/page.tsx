@@ -4,7 +4,7 @@ import styles from './schedule.module.css';
 import Http from '@/providers/axiosInstance';
 import { useCookies } from 'next-client-cookies';
 import { toast } from 'react-toastify';
-import { ErrorMessage, Formik } from 'formik';
+import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 
 import FullCalendar from '@fullcalendar/react'
@@ -37,17 +37,6 @@ export default function Attendance() {
         event_end_date: Yup.string().required('End Date  is required'),
         event_end_time: Yup.string().required('End Time  is required'),
     });
-
-    const [addClassData, setAddClassData] = useState<any>({
-        id: "",
-        organization_id: cookies.get('org_id'),
-        event_type_id: "1",
-        user_id: "1",
-        event_start_date: "1",
-        event_start_time: "1",
-        event_end_date: "1",
-        event_end_time: "1"
-    })
 
     useEffect(() => {
         let id = cookies.get('org_id');
@@ -175,19 +164,18 @@ export default function Attendance() {
         }
     }
 
-
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = event.target;
-        setAddClassData((prevData: any) => ({
-            ...prevData,
-            [name]: value,
-        }));
-    };
-
-    const saveClass = async (values:any) => {
+    const saveClass = async (values: any) => {
         console.log(values);
-        // let res = await Http.post('AddEditEvents', addClassData);
-        // console.log(res)
+        let res = await Http.post('AddEditEvents', values);
+        console.log(res);
+        if (res && res.status == true) {
+            closeModal('editModalLabel');
+            let id = cookies.get('org_id');
+            if (id) {
+                getClassesType(id);
+            }
+            toast.success(res.data.message);
+        }
     }
 
 
@@ -233,69 +221,63 @@ export default function Attendance() {
                                 event_start_date: "",
                                 event_start_time: "",
                                 event_end_date: "",
-                                event_end_time: ""
+                                event_end_time: "",
                             }}
                             validationSchema={validationSchema}
                             onSubmit={saveClass}
                         >
                             {({ isSubmitting }) => (
-
-                                <form>
+                                <Form>
                                     <div className="modal-body">
-                                        <h5 className='text-center fw-bold'>
-                                            {modalType}
-                                        </h5>
+                                        <h5 className='text-center fw-bold'>{modalType}</h5>
 
                                         <div>
                                             <div className="form-group mb-3">
-                                                <label htmlFor="exampleFormControlSelect1">Class Type</label>
-                                                <select className="form-select" name="event_type_id" onChange={handleChange} defaultValue="">
+                                                <label htmlFor="event_type_id">Class Type</label>
+                                                <Field as="select" name="event_type_id" className="form-select">
                                                     <option value="" disabled>Choose an Event Type to Edit or Delete</option>
-                                                    {
-                                                        classesTypes &&
-                                                        classesTypes.map((item: any, i: number) => (
-                                                            <option value={item.id} key={i}>{item.event_type_name}</option>
-                                                        ))
-                                                    }
-                                                </select>
-
-                                                <ErrorMessage name="event_type_id" component="div" />
+                                                    {classesTypes.map((item: any, i: number) => (
+                                                        <option value={item.id} key={i}>{item.event_type_name}</option>
+                                                    ))}
+                                                </Field>
+                                                <ErrorMessage name="event_type_id" component="div" className="text-danger" />
                                             </div>
 
                                             <div className="form-group mb-3">
-                                                <label htmlFor="exampleFormControlSelect1">Instructor</label>
-                                                <select className="form-control" name="user_id" onChange={handleChange} defaultValue="">
+                                                <label htmlFor="user_id">Instructor</label>
+                                                <Field as="select" name="user_id" className="form-control">
                                                     <option value="" disabled>Choose an Instructor</option>
-                                                    {
-                                                        instructors &&
-                                                        instructors.map((item: any, i: number) => (
-                                                            <option value={item.id} key={i}>{item.fullname}</option>
-                                                        ))
-                                                    }
-                                                </select>
+                                                    {instructors.map((item: any, i: number) => (
+                                                        <option value={item.id} key={i}>{item.fullname}</option>
+                                                    ))}
+                                                </Field>
+                                                <ErrorMessage name="user_id" component="div" className="text-danger" />
                                             </div>
 
                                             <div className="mb-3">
                                                 <label className="form-label">Start Date</label>
-                                                <input type="date" className={`form-control ${styles.myInput}`} name="event_start_date" onChange={handleChange} />
+                                                <Field type="date" name="event_start_date" className={`form-control ${styles.myInput}`} />
+                                                <ErrorMessage name="event_start_date" component="div" className="text-danger" />
                                             </div>
 
                                             <div className="mb-3">
                                                 <label className="form-label">Start Time</label>
-                                                <input type="time" className={`form-control ${styles.myInput}`} name="event_start_time" onChange={handleChange} />
+                                                <Field type="time" name="event_start_time" className={`form-control ${styles.myInput}`} />
+                                                <ErrorMessage name="event_start_time" component="div" className="text-danger" />
                                             </div>
 
                                             <div className="mb-3">
-                                                <label className="form-label">End Date / Time</label>
-                                                <input type="date" className={`form-control ${styles.myInput}`} name="event_end_date" onChange={handleChange} />
+                                                <label className="form-label">End Date</label>
+                                                <Field type="date" name="event_end_date" className={`form-control ${styles.myInput}`} />
+                                                <ErrorMessage name="event_end_date" component="div" className="text-danger" />
                                             </div>
 
                                             <div className="mb-3">
                                                 <label className="form-label">End Time</label>
-                                                <input type="time" className={`form-control ${styles.myInput}`} name="event_end_time" onChange={handleChange} />
+                                                <Field type="time" name="event_end_time" className={`form-control ${styles.myInput}`} />
+                                                <ErrorMessage name="event_end_time" component="div" className="text-danger" />
                                             </div>
                                         </div>
-
                                     </div>
 
                                     <div className="modal-footer d-flex align-items-center justify-content-between">
@@ -303,10 +285,9 @@ export default function Attendance() {
                                         <button type="button" className={`btn ${styles.btnOutline2}`}>Check-In</button>
 
                                         <button type="button" className={`btn ${styles.btnOutline}`} data-bs-dismiss="modal">Cancel</button>
-                                        <button className={`btn ${styles.btnColor}`}  type="submit" disabled={isSubmitting}>Save</button>
+                                        <button type="submit" className={`btn ${styles.btnColor}`} disabled={isSubmitting}>Save</button>
                                     </div>
-
-                                </form>
+                                </Form>
                             )}
                         </Formik>
                     </div>
@@ -378,7 +359,6 @@ export default function Attendance() {
                     </div>
                 </div>
             </div>
-
         </>
     )
 }
