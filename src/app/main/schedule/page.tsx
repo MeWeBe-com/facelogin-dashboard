@@ -16,7 +16,6 @@ let events: any = [];
 
 export default function Attendance() {
     const cookies = useCookies();
-    const [classes, setClasses] = useState<any>([]);
     const [classesTypes, setClassesTypes] = useState<any>([]);
 
     const [selectedClassType, setSelectedClassType] = useState<any>(null);
@@ -25,8 +24,8 @@ export default function Attendance() {
 
     const [modalType, setModalType] = useState<string>('Update Event');
 
+    const [selectedClass, setSelectedClass] = useState<any>(null);
     const [instructors, setInstructors] = useState<any>([]);
-
     const validationSchema = Yup.object().shape({
         id: Yup.string(),
         organization_id: Yup.string().required('Ogranization ID is required'),
@@ -66,7 +65,6 @@ export default function Attendance() {
     const getClasses = async (orgId: any) => {
         let res = await Http.get(`GetAllEventsByOrganizationID/${orgId}`);
         if (res && res.status == true) {
-            setClasses(res.data.events);
             let arr: any = formatEvents(res.data.events);
             events = arr;
         }
@@ -90,7 +88,8 @@ export default function Attendance() {
     };
 
     const handleEventClick = (clickInfo: any) => {
-        console.log("Event details:", clickInfo.event);
+        console.log("Event details:", clickInfo.event, clickInfo.event.title, clickInfo.event.start, clickInfo.event.end);
+        // /setSelectedClass(selectedClassData || null);
         openModal('Update Event');
     };
 
