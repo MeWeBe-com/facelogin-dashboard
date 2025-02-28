@@ -99,16 +99,14 @@ export default function Attendance() {
     };
 
     const handleEventClick = (clickInfo: any) => {
-        console.log("Event details:", clickInfo.event, clickInfo.event.title, clickInfo.event.start, clickInfo.event.end);
         let evt = events.find((item: any) => item.id == clickInfo.event.id);
-        console.log(evt);
         setSelectedClass(evt || null);
         openModal('Update Event');
     };
 
     const handleDateClick = (evt: any) => {
         console.log('date clicked', evt);
-        openModal('Add Event')
+        //openModal('Add Event')
     }
 
     const openModal = (type: string) => {
@@ -132,6 +130,9 @@ export default function Attendance() {
     const closeModal = (modalId: string) => {
         const modalElement = document.getElementById(modalId);
         if (modalElement && window.bootstrap) {
+            setSelectedClassType(null);
+            setClassTypeName('');
+            setIsEditable(false);
             setSelectedClass(null);
             const modal = window.bootstrap.Modal.getInstance(modalElement); // Get existing modal instance
             if (modal) {
@@ -161,9 +162,6 @@ export default function Attendance() {
         };
         let res = await Http.post('AddEditEventsTypes', data);
         if (res && res.status == true) {
-            setSelectedClassType(null);
-            setClassTypeName('');
-            setIsEditable(false);
             closeModal('addEventModal');
             let id = cookies.get('org_id');
             if (id) {
@@ -185,6 +183,28 @@ export default function Attendance() {
             closeModal('editModal');
             toast.success(res.data.message);
         }
+    }
+
+    const deleteClass = async () => {
+        if (selectedClass) {
+            let res = await Http.get(`DeleteEventByID/${selectedClass.id}`);
+            console.log(res)
+            if (res && res.status) {
+                let id = cookies.get('org_id');
+                if (id) {
+                    getClassesType(id);
+                }
+                setSelectedClass(null);
+                closeModal('editModal')
+                toast.success(res.data.message);
+            }
+        } else {
+            closeModal('editModal')
+        }
+    }
+
+    const openCheckinModal = ()=>{
+
     }
 
     return (
@@ -280,7 +300,7 @@ export default function Attendance() {
                                     </div>
 
                                     <div className="modal-footer d-flex align-items-center justify-content-between">
-                                        <button type="button" className={`btn ${styles.btnDanger}`}>Delete</button>
+                                        <button type="button" className={`btn ${styles.btnDanger}`} onClick={() => deleteClass()}>Delete</button>
                                         <button type="button" className={`btn ${styles.btnOutline2}`}>Check-In</button>
 
                                         <button type="button" className={`btn ${styles.btnOutline}`} onClick={() => closeModal('editModal')}>Cancel</button>
@@ -300,6 +320,72 @@ export default function Attendance() {
                         <div className="modal-body">
                             <h5 className='text-center fw-bold'>
                                 Add Event Type
+                            </h5>
+
+                            <div>
+                                <div className="mb-3">
+                                    <label className="form-label">Select Event</label>
+                                    <div className="input-group">
+                                        {isEditable ? (
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                value={classTypeName}
+                                                onChange={handleInputChange}
+                                            />
+                                        ) : (
+                                            <select className="form-select" onChange={handleSelectChange} defaultValue="">
+                                                <option value="" disabled>Choose an Event Type to Edit or Delete</option>
+                                                {
+                                                    classesTypes &&
+                                                    classesTypes.map((item: any, i: number) => (
+                                                        <option value={item.id} key={i}>{item.event_type_name}</option>
+                                                    ))
+                                                }
+
+                                            </select>
+                                        )}
+                                        {isEditable &&
+                                            <>
+                                                <button type="button" className="btn btn-outline-danger" onClick={() => setIsEditable(false)}>
+                                                    <i className="bi bi-trash-fill"></i>
+                                                </button>
+
+                                                <button type="button" className="btn btn-outline-success" onClick={() => updateEventType()}>
+                                                    <i className="bi bi-check-circle-fill"></i>
+                                                </button>
+
+                                                <button type="button" className="btn btn-outline-secondary" onClick={() => setIsEditable(false)}>
+                                                    <i className="bi bi-x-circle"></i>
+                                                </button>
+                                            </>
+                                        }
+
+                                        <button type="button" className="btn btn-outline-secondary" onClick={() => setIsEditable(true)}>
+                                            <i className="bi bi-pencil-square"></i>
+                                        </button>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div className="modal-footer">
+
+                            <button type="button" className={`btn ${styles.btnOutline}`} data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="modal fade" id="checkInModal" tabIndex={-1} aria-labelledby="checkInModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" >
+                <div className="modal-dialog">
+                    <div className="modal-content">
+
+                        <div className="modal-body">
+                            <h5 className='text-center fw-bold'>
+                                Check-In Attendees
                             </h5>
 
                             <div>
