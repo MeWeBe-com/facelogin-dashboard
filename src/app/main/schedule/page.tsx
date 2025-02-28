@@ -37,6 +37,17 @@ export default function Attendance() {
         event_end_time: Yup.string().required('End Time  is required'),
     });
 
+    const initialValues = {
+        id: selectedClass?.id || "",
+        organization_id: cookies.get('org_id'),
+        event_type_id: selectedClass?.event_type_id || "",
+        user_id: selectedClass?.user_id || "",
+        event_start_date: selectedClass?.event_start_date || "",
+        event_start_time: selectedClass?.event_start_time || "",
+        event_end_date: selectedClass?.event_end_date || "",
+        event_end_time: selectedClass?.event_end_time || "",
+    };
+
     useEffect(() => {
         let id = cookies.get('org_id');
         if (id) {
@@ -63,7 +74,7 @@ export default function Attendance() {
     }
 
     const getClasses = async (orgId: any) => {
-        let res = await Http.get(`GetAllEventsByOrganizationID/${orgId}`);
+        let res = await Http.get(`GetAllEventByOrgID/${orgId}`);
         if (res && res.status == true) {
             let arr: any = formatEvents(res.data.events);
             events = arr;
@@ -73,7 +84,7 @@ export default function Attendance() {
     const formatEvents = (classArr: any) => {
         let arr: any = [];
         classArr.forEach((item: any) => {
-            arr.push({ id: item.id, title: item.event_name, start: new Date(item.event_date_time) })
+            arr.push({ ...item, title: item.event_type_name, start: new Date(item.event_start_date) })
         });
         return arr;
     }
@@ -89,7 +100,9 @@ export default function Attendance() {
 
     const handleEventClick = (clickInfo: any) => {
         console.log("Event details:", clickInfo.event, clickInfo.event.title, clickInfo.event.start, clickInfo.event.end);
-        // /setSelectedClass(selectedClassData || null);
+        let evt = events.find((item: any) => item.id == clickInfo.event.id);
+        console.log(evt);
+        setSelectedClass(evt || null);
         openModal('Update Event');
     };
 
@@ -119,6 +132,7 @@ export default function Attendance() {
     const closeModal = (modalId: string) => {
         const modalElement = document.getElementById(modalId);
         if (modalElement && window.bootstrap) {
+            setSelectedClass(null);
             const modal = window.bootstrap.Modal.getInstance(modalElement); // Get existing modal instance
             if (modal) {
                 modal.hide();
@@ -140,8 +154,6 @@ export default function Attendance() {
     };
 
     const updateEventType = async () => {
-        console.log(selectedClassType, classTypeName);
-
         let data = {
             id: selectedClassType ? selectedClassType.id : '',
             organization_id: cookies.get('org_id'),
@@ -164,20 +176,16 @@ export default function Attendance() {
     }
 
     const saveClass = async (values: any) => {
-        console.log(values);
         let res = await Http.post('AddEditEvents', values);
-        console.log(res);
         if (res && res.status == true) {
-            closeModal('editModalLabel');
             let id = cookies.get('org_id');
             if (id) {
                 getClassesType(id);
             }
+            closeModal('editModal');
             toast.success(res.data.message);
         }
     }
-
-
 
     return (
         <>
@@ -208,20 +216,12 @@ export default function Attendance() {
                 <button type="button" className={`btn ${styles.btnOutline}`} onClick={() => openAddEvetModal()}>Add Event Types</button>
             </div>
 
-            <div className="modal fade" id="editModal" tabIndex={-1} aria-labelledby="editModalLabel" aria-hidden="true">
+            <div className="modal fade" id="editModal" tabIndex={-1} aria-labelledby="editModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" >
                 <div className="modal-dialog">
                     <div className="modal-content">
                         <Formik
-                            initialValues={{
-                                id: "",
-                                organization_id: cookies.get('org_id'),
-                                event_type_id: "",
-                                user_id: "",
-                                event_start_date: "",
-                                event_start_time: "",
-                                event_end_date: "",
-                                event_end_time: "",
-                            }}
+                            enableReinitialize={true}
+                            initialValues={initialValues}
                             validationSchema={validationSchema}
                             onSubmit={saveClass}
                         >
@@ -283,7 +283,7 @@ export default function Attendance() {
                                         <button type="button" className={`btn ${styles.btnDanger}`}>Delete</button>
                                         <button type="button" className={`btn ${styles.btnOutline2}`}>Check-In</button>
 
-                                        <button type="button" className={`btn ${styles.btnOutline}`} data-bs-dismiss="modal">Cancel</button>
+                                        <button type="button" className={`btn ${styles.btnOutline}`} onClick={() => closeModal('editModal')}>Cancel</button>
                                         <button type="submit" className={`btn ${styles.btnColor}`} disabled={isSubmitting}>Save</button>
                                     </div>
                                 </Form>
@@ -293,7 +293,7 @@ export default function Attendance() {
                 </div>
             </div>
 
-            <div className="modal fade" id="addEventModal" tabIndex={-1} aria-labelledby="addEventModalLabel" aria-hidden="true">
+            <div className="modal fade" id="addEventModal" tabIndex={-1} aria-labelledby="addEventModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" >
                 <div className="modal-dialog">
                     <div className="modal-content">
 
