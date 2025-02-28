@@ -17,6 +17,7 @@ let events: any = [];
 export default function Attendance() {
     const cookies = useCookies();
     const [classesTypes, setClassesTypes] = useState<any>([]);
+    const [classes, setClasses] = useState<any>([]);
 
     const [selectedClassType, setSelectedClassType] = useState<any>(null);
     const [classTypeName, setClassTypeName] = useState<string>('');
@@ -77,7 +78,8 @@ export default function Attendance() {
         let res = await Http.get(`GetAllEventByOrgID/${orgId}`);
         if (res && res.status == true) {
             let arr: any = formatEvents(res.data.events);
-            events = arr;
+            console.log(arr);
+            setClasses(arr);
         }
     }
 
@@ -99,7 +101,7 @@ export default function Attendance() {
     };
 
     const handleEventClick = (clickInfo: any) => {
-        let evt = events.find((item: any) => item.id == clickInfo.event.id);
+        let evt = classes.find((item: any) => item.id == clickInfo.event.id);
         setSelectedClass(evt || null);
         openModal('Update Event');
     };
@@ -178,7 +180,7 @@ export default function Attendance() {
         if (res && res.status == true) {
             let id = cookies.get('org_id');
             if (id) {
-                getClassesType(id);
+                getClasses(id);
             }
             closeModal('editModal');
             toast.success(res.data.message);
@@ -188,11 +190,10 @@ export default function Attendance() {
     const deleteClass = async () => {
         if (selectedClass) {
             let res = await Http.get(`DeleteEventByID/${selectedClass.id}`);
-            console.log(res)
             if (res && res.status) {
                 let id = cookies.get('org_id');
                 if (id) {
-                    getClassesType(id);
+                    getClasses(id);
                 }
                 setSelectedClass(null);
                 closeModal('editModal')
@@ -223,7 +224,7 @@ export default function Attendance() {
                         right: "dayGridMonth,timeGridWeek,timeGridDay",
                     }}
                     weekends={true}
-                    events={events}
+                    events={classes}
                     eventContent={RenderEventContent}
                     eventClick={handleEventClick}
                     dateClick={handleDateClick}
