@@ -25,3 +25,14 @@
     color: var(--primary);
     border: 1px solid var(--primary);
 }
+
+.btnColor {
+    color: #fff;
+    background: var(--primary);
+}
+
+.btnColor:hover {
+    color: #fff;
+    background: var(--primary);
+    opacity: .7;
+}

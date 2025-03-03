@@ -1,8 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+
 import styles from './attendance.module.css';
 
 export default function Attendance() {
+    const router = useRouter();
+
     return (
         <>
             <div className="container mt-5">
@@ -152,7 +156,9 @@ export default function Attendance() {
                     </div>
                 </div>
 
-
+                <div className="container my-3 d-flex">
+                    <button type="button" style={{ marginRight: 20 }} className={`btn ${styles.btnColor}`} onClick={() => router.push("/main/attendees/createattendee")}>Add Attendee</button>
+                </div>
             </div>
         </>
     )

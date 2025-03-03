@@ -12,8 +12,6 @@ import dayGridPlugin from "@fullcalendar/daygrid"; // For month view
 import timeGridPlugin from "@fullcalendar/timegrid"; // For week & day views
 import interactionPlugin from "@fullcalendar/interaction";
 
-let events: any = [];
-
 export default function Attendance() {
     const cookies = useCookies();
     const [classesTypes, setClassesTypes] = useState<any>([]);
@@ -49,8 +47,10 @@ export default function Attendance() {
         event_end_time: selectedClass?.event_end_time || "",
     };
 
+    const [attendeesList, setAttendeesList] = useState<any>([]);
+    const [selectedAttendees, setselectedAttendees] = useState<any>([]);
     const [attendeesClass, setAttendeesClass] = useState<any>(null);
-    const [attendees, setAttendees] = useState<any>([]);
+    const [checkinAttendees, setcheckinAttendees] = useState<any>([]);
 
     useEffect(() => {
         let id = cookies.get('org_id');
@@ -58,6 +58,7 @@ export default function Attendance() {
             getClassesType(id);
             getClasses(id);
             getInstructors(id);
+            getAttendees(id);
         } else {
             toast.error('Something went wrong!');
         }
@@ -91,6 +92,14 @@ export default function Attendance() {
             arr.push({ ...item, title: item.event_type_name, start: new Date(item.event_start_date) })
         });
         return arr;
+    }
+
+    const getAttendees = async (orgId: any) => {
+        let res = await Http.get(`GetAllAttendees/${orgId}`);
+        console.log(res)
+        if (res && res.status == true) {
+            setAttendeesList(res.data.attendees);
+        }
     }
 
     const RenderEventContent = (eventInfo: any) => {
@@ -217,32 +226,95 @@ export default function Attendance() {
         }
     }
 
-    const handleAttendeeCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const attendeeId = e.target.value; // Get the attendee's ID or value
-        const isChecked = e.target.checked; // Check if the checkbox is checked or unchecked
+    const openAttendeeModal = () => {
+        if (selectedClass) {
+            setAttendeesClass(selectedClass);
+            closeModal('editModal');
+            const modalElement = document.getElementById("addAttendeeModal");
+            if (modalElement && window.bootstrap) {
+                const modal = new window.bootstrap.Modal(modalElement);
+                modal.show();
+            }
+        }
+    }
 
+
+    // add attendee
+    const handleAddAllAttendeeCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const isChecked = e.target.checked;
         if (isChecked) {
-            setAttendees((prevState: any) => [...prevState, attendeeId]);
+            const allAttendeeIds = attendeesList.map((attendee: any) => attendee.id);
+            setselectedAttendees(allAttendeeIds);
         } else {
-            setAttendees((prevState: any) => prevState.filter((id: any) => id !== attendeeId));
+            setselectedAttendees([]);
         }
     };
 
-    const saveAttendees = async () => {
-        if (attendees.length == 0) {
+    const handleAddAttendeeCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const attendeeId = Number(e.target.value); // Convert value to number
+        const isChecked = e.target.checked;
+
+        setselectedAttendees((prevState: any) =>
+            isChecked ? [...prevState, attendeeId] : prevState.filter((id: any) => id !== attendeeId)
+        );
+    };
+
+    const saveAddAttendees = async () => {
+        if (selectedAttendees.length == 0) {
             toast.error('Please select Attendees');
             return
         }
         let data = {
-            user_id: attendees,
+            event_id: attendeesClass.id,
+            user_id: selectedAttendees,
+        };
+
+        let res = await Http.post('AddAttendeeintoEvent', data);
+        if (res && res.status == true) {
+            setAttendeesClass(null);
+            setcheckinAttendees([]);
+            closeModal('checkInModal');
+            toast.success(res.data.message);
+        } else {
+            toast.error('Something went worng!');
+        }
+    }
+
+    // checkin attendee
+    const handleCheckinAttendeeCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const attendeeId = Number(e.target.value); // Convert to number
+        const isChecked = e.target.checked;
+
+        setcheckinAttendees((prevState: number[]) =>
+            isChecked ? [...prevState, attendeeId] : prevState.filter((id) => id !== attendeeId)
+        );
+    };
+
+    const handleSelectAllCheckinAttendees = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const isChecked = e.target.checked;
+        if (isChecked) {
+            const allAttendeeIds = attendeesClass.attendee_event_users.map((attendee: any) => attendee.user_id);
+            setcheckinAttendees(allAttendeeIds);
+        } else {
+            setcheckinAttendees([]);
+        }
+    };
+
+    const saveCheckinAttendees = async () => {
+        if (checkinAttendees.length == 0) {
+            toast.error('Please select Attendees');
+            return
+        }
+        let data = {
+            user_id: checkinAttendees,
             event_id: attendeesClass.id,
             organization_id: cookies.get('org_id')
         };
-        let res = await Http.post('UserCheckin', data);
 
+        let res = await Http.post('UserCheckin', data);
         if (res && res.status == true) {
             setAttendeesClass(null);
-            setAttendees([]);
+            setcheckinAttendees([]);
             closeModal('checkInModal');
             toast.success(res.data.message);
         } else {
@@ -280,7 +352,7 @@ export default function Attendance() {
             </div>
 
             <div className="modal fade" id="editModal" tabIndex={-1} aria-labelledby="editModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" >
-                <div className="modal-dialog">
+                <div className="modal-dialog modal-lg">
                     <div className="modal-content">
                         <Formik
                             enableReinitialize={true}
@@ -345,6 +417,7 @@ export default function Attendance() {
                                     <div className="modal-footer d-flex align-items-center justify-content-between">
                                         <button type="button" className={`btn ${styles.btnDanger}`} onClick={() => deleteClass()}>Delete</button>
                                         <button type="button" className={`btn ${styles.btnOutline2}`} onClick={() => openCheckinModal()}>Check-In</button>
+                                        <button type="button" className={`btn ${styles.btnOutline2}`} onClick={() => openAttendeeModal()}>Add Attendee</button>
 
                                         <button type="button" className={`btn ${styles.btnOutline}`} onClick={() => closeModal('editModal')}>Cancel</button>
                                         <button type="submit" className={`btn ${styles.btnColor}`} disabled={isSubmitting}>Save</button>
@@ -432,23 +505,95 @@ export default function Attendance() {
                             </h5>
 
                             <div>
-                                {
-                                    attendeesClass &&
-                                    attendeesClass?.attendee_event_users.map((item: any, i: number) => (
-                                        <div className="form-check" key={i}>
-                                            <input className="form-check-input" type="checkbox" value={item.user_event_id} id={'flexCheckDefault' + i} onChange={handleAttendeeCheck} />
-                                            <label className="form-check-label" htmlFor={'flexCheckDefault' + i}>
-                                                {item.attendee_name}
-                                            </label>
-                                        </div>
-                                    ))
-                                }
+                                <div className="form-check">
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        id="checkInAttendee"
+                                        onChange={handleSelectAllCheckinAttendees}
+                                    />
+                                    <label className="form-check-label" htmlFor="checkInAttendee">
+                                        Select All
+                                    </label>
+                                </div>
+
+                                <div>
+                                    {attendeesClass &&
+                                        attendeesClass.attendee_event_users.map((item: any, i: number) => (
+                                            <div className="form-check" key={i}>
+                                                <input
+                                                    className="form-check-input"
+                                                    type="checkbox"
+                                                    value={item.user_id}
+                                                    id={'checkInAttendee' + i}
+                                                    onChange={handleCheckinAttendeeCheck}
+                                                    checked={checkinAttendees.includes(item.user_id)}
+                                                />
+                                                <label className="form-check-label" htmlFor={'checkInAttendee' + i}>
+                                                    {item.attendee_name}
+                                                </label>
+                                            </div>
+                                        ))}
+                                </div>
+
                             </div>
                         </div>
 
                         <div className="modal-footer d-flex align-items-center justify-content-between">
                             <button type="button" className={`btn ${styles.btnOutline}`} onClick={() => closeModal('checkInModal')}>Cancel</button>
-                            <button type="button" className={`btn ${styles.btnColor}`} onClick={() => saveAttendees()}>Save</button>
+                            <button type="button" className={`btn ${styles.btnColor}`} onClick={() => saveCheckinAttendees()}>Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="modal fade" id="addAttendeeModal" tabIndex={-1} aria-labelledby="addAttendeeModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" >
+                <div className="modal-dialog">
+                    <div className="modal-content">
+
+                        <div className="modal-body">
+                            <h5 className='text-center fw-bold'>
+                                Add Attendees
+                            </h5>
+
+                            <div>
+                                <div className="form-check">
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        id="addAttendee"
+                                        onChange={handleAddAllAttendeeCheck}
+                                        checked={selectedAttendees.length === attendeesList.length && attendeesList.length > 0}
+                                    />
+                                    <label className="form-check-label" htmlFor="addAttendee">
+                                        Select All
+                                    </label>
+                                </div>
+
+                                {attendeesList &&
+                                    attendeesList.map((item: any, i: number) => (
+                                        <div className="form-check" key={i}>
+                                            <input
+                                                className="form-check-input secondary"
+                                                type="checkbox"
+                                                value={item.id}
+                                                id={'addAttendee' + i}
+                                                onChange={handleAddAttendeeCheck}
+                                                checked={selectedAttendees.includes(item.id)} // Ensures checkbox reflects selection
+                                            />
+                                            <label className="form-check-label" htmlFor={'addAttendee' + i}>
+                                                {item.fullname}
+                                            </label>
+                                        </div>
+                                    ))
+                                }
+
+                            </div>
+                        </div>
+
+                        <div className="modal-footer d-flex align-items-center justify-content-between">
+                            <button type="button" className={`btn ${styles.btnOutline}`} onClick={() => closeModal('addAttendeeModal')}>Cancel</button>
+                            <button type="button" className={`btn ${styles.btnColor}`} onClick={() => saveAddAttendees()}>Save</button>
                         </div>
                     </div>
                 </div>

@@ -33,3 +33,8 @@ a {
 .fc-daygrid-day-number{
   color: #000;
 }
+
+.form-check-input:checked{
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
