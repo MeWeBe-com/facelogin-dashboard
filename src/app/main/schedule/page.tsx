@@ -96,7 +96,6 @@ export default function Attendance() {
 
     const getAttendees = async (orgId: any) => {
         let res = await Http.get(`GetAllAttendees/${orgId}`);
-        console.log(res)
         if (res && res.status == true) {
             setAttendeesList(res.data.attendees);
         }
@@ -273,7 +272,11 @@ export default function Attendance() {
         if (res && res.status == true) {
             setAttendeesClass(null);
             setcheckinAttendees([]);
-            closeModal('checkInModal');
+            let id = cookies.get('org_id');
+            if (id) {
+                getClasses(id);
+            }
+            closeModal('addAttendeeModal');
             toast.success(res.data.message);
         } else {
             toast.error('Something went worng!');
@@ -315,7 +318,7 @@ export default function Attendance() {
         if (res && res.status == true) {
             let id = cookies.get('org_id');
             if (id) {
-                getClassesType(id);
+                getClasses(id);
             }
             setAttendeesClass(null);
             setcheckinAttendees([]);
