@@ -313,6 +313,10 @@ export default function Attendance() {
 
         let res = await Http.post('UserCheckin', data);
         if (res && res.status == true) {
+            let id = cookies.get('org_id');
+            if (id) {
+                getClassesType(id);
+            }
             setAttendeesClass(null);
             setcheckinAttendees([]);
             closeModal('checkInModal');
