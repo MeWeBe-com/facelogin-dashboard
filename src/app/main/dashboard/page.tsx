@@ -80,7 +80,7 @@ export default function Dashboard() {
 
     const fetchData = async (data: any) => {
         try {
-            const response = await Http.post(`GetAllEventsByOrganizationIDandDate`, data);
+            const response = await Http.post(`GetAllClassesByOrganizationIDandDate`, data);
             setSelectedClass(0);
             setClasses(response.data.events);
         } catch (err) {

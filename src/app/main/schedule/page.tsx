@@ -65,7 +65,7 @@ export default function Attendance() {
     }, [])
 
     const getClassesType = async (orgId: any) => {
-        let res = await Http.get(`GetAllEventsTypes/${orgId}`);
+        let res = await Http.get(`GetAllClassTypes/${orgId}`);
         if (res && res.status == true) {
             setClassesTypes(res.data.event_types);
         }
@@ -131,7 +131,7 @@ export default function Attendance() {
     };
 
     const openAddEvetModal = () => {
-        const modalElement = document.getElementById("addEventModal");
+        const modalElement = document.getElementById("addClassTypeModal");
         if (modalElement && window.bootstrap) {
             const modal = new window.bootstrap.Modal(modalElement);
             modal.show();
@@ -173,7 +173,7 @@ export default function Attendance() {
         };
         let res = await Http.post('AddEditEventsTypes', data);
         if (res && res.status == true) {
-            closeModal('addEventModal');
+            closeModal('addClassTypeModal');
             let id = cookies.get('org_id');
             if (id) {
                 getClassesType(id);
@@ -182,6 +182,22 @@ export default function Attendance() {
         } else {
             toast.error(res.data.message)
         }
+    }
+
+    const deleteClassType = async () => {      
+        let res = await Http.get(`DeleteClassTypeByID/${selectedClassType.id}`);
+        console.log(res);
+        if (res && res.status == true) {
+            let id = cookies.get('org_id');
+            if (id) {
+                getClassesType(id);
+            }
+            closeModal('addClassTypeModal');
+            toast.success(res.data.message)
+        } else {
+            toast.error(res.data.message)
+        }
+
     }
 
     const saveClass = async (values: any) => {
@@ -436,7 +452,7 @@ export default function Attendance() {
                 </div>
             </div>
 
-            <div className="modal fade" id="addEventModal" tabIndex={-1} aria-labelledby="addEventModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" >
+            <div className="modal fade" id="addClassTypeModal" tabIndex={-1} aria-labelledby="addClassTypeModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" >
                 <div className="modal-dialog">
                     <div className="modal-content">
 
@@ -470,7 +486,7 @@ export default function Attendance() {
                                         )}
                                         {isEditable &&
                                             <>
-                                                <button type="button" className="btn btn-outline-danger" onClick={() => setIsEditable(false)}>
+                                                <button type="button" className="btn btn-outline-danger" onClick={() => deleteClassType()}>
                                                     <i className="bi bi-trash-fill"></i>
                                                 </button>
 
