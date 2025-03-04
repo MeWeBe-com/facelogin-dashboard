@@ -21,7 +21,7 @@ export default function Attendance() {
     const [classTypeName, setClassTypeName] = useState<string>('');
     const [isEditable, setIsEditable] = useState(false);
 
-    const [modalType, setModalType] = useState<string>('Update Event');
+    const [modalType, setModalType] = useState<string>('Update Class');
 
     const [selectedClass, setSelectedClass] = useState<any>(null);
     const [instructors, setInstructors] = useState<any>([]);
@@ -79,7 +79,7 @@ export default function Attendance() {
     }
 
     const getClasses = async (orgId: any) => {
-        let res = await Http.get(`GetAllEventByOrgID/${orgId}`);
+        let res = await Http.get(`GetAllClassesByOrgID/${orgId}`);
         if (res && res.status == true) {
             let arr: any = formatEvents(res.data.events);
             setClasses(arr);
@@ -89,7 +89,7 @@ export default function Attendance() {
     const formatEvents = (classArr: any) => {
         let arr: any = [];
         classArr.forEach((item: any) => {
-            arr.push({ ...item, title: item.event_type_name, start: new Date(item.event_start_date) })
+            arr.push({ ...item, title: item.event_type_name, start: new Date(`${item.event_start_date}T${item.event_start_time}:00Z`) })
         });
         return arr;
     }
@@ -113,7 +113,7 @@ export default function Attendance() {
     const handleEventClick = (clickInfo: any) => {
         let evt = classes.find((item: any) => item.id == clickInfo.event.id);
         setSelectedClass(evt || null);
-        openModal('Update Event');
+        openModal('Update Class');
     };
 
     const handleDateClick = (evt: any) => {
@@ -374,7 +374,7 @@ export default function Attendance() {
             </div>
 
             <div className="container my-3 d-flex">
-                <button type="button" style={{ marginRight: 20 }} className={`btn ${styles.btnColor}`} onClick={() => openModal('Add Event')}>Add Class</button>
+                <button type="button" style={{ marginRight: 20 }} className={`btn ${styles.btnColor}`} onClick={() => openModal('Add Class')}>Add Class</button>
                 <button type="button" className={`btn ${styles.btnOutline}`} onClick={() => openAddEvetModal()}>Add Class Types</button>
             </div>
 
