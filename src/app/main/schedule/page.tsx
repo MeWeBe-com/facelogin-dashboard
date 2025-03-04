@@ -184,9 +184,8 @@ export default function Attendance() {
         }
     }
 
-    const deleteClassType = async () => {      
+    const deleteClassType = async () => {
         let res = await Http.get(`DeleteClassTypeByID/${selectedClassType.id}`);
-        console.log(res);
         if (res && res.status == true) {
             let id = cookies.get('org_id');
             if (id) {
@@ -210,6 +209,11 @@ export default function Attendance() {
             closeModal('editModal');
             toast.success(res.data.message);
         }
+    }
+
+    const deselectClassType = () => {
+        setSelectedClass(null);
+        setIsEditable(false);
     }
 
     const deleteClass = async () => {
@@ -370,8 +374,8 @@ export default function Attendance() {
             </div>
 
             <div className="container my-3 d-flex">
-                <button type="button" style={{ marginRight: 20 }} className={`btn ${styles.btnColor}`} onClick={() => openModal('Add Event')}>Add Events</button>
-                <button type="button" className={`btn ${styles.btnOutline}`} onClick={() => openAddEvetModal()}>Add Event Types</button>
+                <button type="button" style={{ marginRight: 20 }} className={`btn ${styles.btnColor}`} onClick={() => openModal('Add Event')}>Add Class</button>
+                <button type="button" className={`btn ${styles.btnOutline}`} onClick={() => openAddEvetModal()}>Add Class Types</button>
             </div>
 
             <div className="modal fade" id="editModal" tabIndex={-1} aria-labelledby="editModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" >
@@ -458,12 +462,12 @@ export default function Attendance() {
 
                         <div className="modal-body">
                             <h5 className='text-center fw-bold'>
-                                Add Event Type
+                                Add Class Type
                             </h5>
 
                             <div>
                                 <div className="mb-3">
-                                    <label className="form-label">Select Event</label>
+                                    <label className="form-label">Select Class Type</label>
                                     <div className="input-group">
                                         {isEditable ? (
                                             <input
@@ -474,7 +478,7 @@ export default function Attendance() {
                                             />
                                         ) : (
                                             <select className="form-select" onChange={handleSelectChange} defaultValue="">
-                                                <option value="" disabled>Choose an Event Type to Edit or Delete</option>
+                                                <option value="" disabled>Choose Class type to Edit or Delete</option>
                                                 {
                                                     classesTypes &&
                                                     classesTypes.map((item: any, i: number) => (
@@ -494,7 +498,7 @@ export default function Attendance() {
                                                     <i className="bi bi-check-circle-fill"></i>
                                                 </button>
 
-                                                <button type="button" className="btn btn-outline-secondary" onClick={() => setIsEditable(false)}>
+                                                <button type="button" className="btn btn-outline-secondary" onClick={() => deselectClassType()}>
                                                     <i className="bi bi-x-circle"></i>
                                                 </button>
                                             </>
