@@ -38,3 +38,7 @@ a {
   background-color: var(--primary) !important;
   border-color: var(--primary) !important;
 }
+
+.dropdown-toggle::after {
+  display: none !important;
+}

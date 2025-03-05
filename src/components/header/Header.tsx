@@ -3,12 +3,22 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import styles from "./style.module.css";
+import { useRouter } from "next/navigation";
+import { useCookies } from 'next-client-cookies';
+
 
 const Header = () => {
-
+    const cookies = useCookies();
+    const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
 
     const closeNavbar = () => setIsOpen(false);
+
+    const onLogout = () => {
+        closeNavbar();
+        cookies.remove('org_id');
+        router.push("/auth/login");
+    }
 
     return (
         <nav className="navbar navbar-expand-lg bg-white border-bottom px-3">
@@ -51,9 +61,9 @@ const Header = () => {
                             <Link className="nav-link fw-semibold text-dark" href="/main/reports" onClick={closeNavbar}>Reports</Link>
                         </li>
 
-                        <li className="nav-item">
+                        {/* <li className="nav-item">
                             <Link className="nav-link fw-semibold text-dark" href="">Scanner</Link>
-                        </li>
+                        </li> */}
 
                         <li className="nav-item">
                             <Link className="nav-link" href="#" onClick={closeNavbar}>
@@ -67,10 +77,16 @@ const Header = () => {
                             </Link>
                         </li>
 
-                        <li className="nav-item">
-                            <Link className="nav-link" href="#" onClick={closeNavbar}>
+                        <li className="nav-item dropdown">
+                            <button type="button" className="btn btn-outline dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i className={`bi bi-person-circle ${styles.iconColor}`}></i>
-                            </Link>
+                            </button>
+
+                            <ul className="dropdown-menu" data-bs-display="static">
+                                <li onClick={onLogout}>
+                                    <span className="dropdown-item">Log Out</span>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
                 </div>
