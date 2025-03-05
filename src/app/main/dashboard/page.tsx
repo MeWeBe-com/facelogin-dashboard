@@ -16,6 +16,7 @@ export default function Dashboard() {
     const [classes, setClasses] = useState<any>([]);
     const [selectedClass, setSelectedClass] = useState<number>(0);
     const [selectedUser, setSelectedUser] = useState<any>(null);
+    const [checkinAttendees, setcheckinAttendees] = useState<any>([]);
 
     const openModal = (user: any, index: number) => {
         setSelectedUser({ user: user, index: index });
@@ -26,8 +27,16 @@ export default function Dashboard() {
         }
     };
 
-    const closeModal = () => {
-        const modalElement = document.getElementById("deleteModal");
+    const openCheckModal = () => {
+        const modalElement = document.getElementById("checkinModal");
+        if (modalElement && window.bootstrap) {
+            const modal = new window.bootstrap.Modal(modalElement);
+            modal.show();
+        }
+    }
+
+    const closeModal = (modalId: string) => {
+        const modalElement = document.getElementById(modalId);
         if (modalElement && window.bootstrap) {
             const modal = window.bootstrap.Modal.getInstance(modalElement); // Get existing modal instance
             if (modal) {
@@ -37,21 +46,22 @@ export default function Dashboard() {
     };
 
     const removeUser = async () => {
-        const res = await Http.get(`RemoveAttendeeFromEvent/${selectedUser.user.user_event_id}`);
+        const res = await Http.get(`RemoveAttendeeCheckIn/${selectedUser.user.checkin_id}`);
         if (res && res.status == true) {
-            removeAttendee(selectedClass, selectedUser.index);
-            closeModal();
+            removeCheckedin(selectedClass, selectedUser.index);
+            setSelectedUser(null);
+            closeModal("deleteModal");
             toast.success(res.data.message);
         } else {
             toast.error(res.data.message);
         }
     }
 
-    const removeAttendee = (selectedClassIndex: number, selectedUserIndex: number) => {
-        setClasses((prevClasses:any) =>
-            prevClasses.map((cls:any, index: number) =>
+    const removeCheckedin = (selectedClassIndex: number, selectedUserIndex: number) => {
+        setClasses((prevClasses: any) =>
+            prevClasses.map((cls: any, index: number) =>
                 index === selectedClassIndex
-                    ? { ...cls, attendees: cls.attendees.filter((_:any, i:number) => i !== selectedUserIndex) }
+                    ? { ...cls, checked_in: cls.checked_in.filter((_: any, i: number) => i !== selectedUserIndex) }
                     : cls
             )
         );
@@ -102,6 +112,57 @@ export default function Dashboard() {
         });
     };
 
+
+
+    // checkin attendee
+    const handleCheckinAttendeeCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const attendeeId = Number(e.target.value); // Convert to number
+        const isChecked = e.target.checked;
+
+        setcheckinAttendees((prevState: number[]) =>
+            isChecked ? [...prevState, attendeeId] : prevState.filter((user_id) => user_id !== attendeeId)
+        );
+    };
+
+    const handleSelectAllCheckinAttendees = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const isChecked = e.target.checked;
+        if (isChecked) {
+            const allAttendeeIds = classes[selectedClass]?.attendees.map((attendee: any) => attendee.user_id);
+            setcheckinAttendees(allAttendeeIds);
+        } else {
+            setcheckinAttendees([]);
+        }
+    };
+
+    const saveCheckinAttendees = async () => {
+        if (checkinAttendees.length == 0) {
+            toast.error('Please select Attendees');
+            return
+        }
+        let data = {
+            user_id: checkinAttendees,
+            event_id: classes[selectedClass]?.id,
+            organization_id: cookies.get('org_id')
+        };
+
+        let res = await Http.post('UserCheckin', data);
+        if (res && res.status == true) {
+            let id = cookies.get('org_id');
+            if (id) {
+                let data = {
+                    org_id: id,
+                    date: new Date(today).toISOString().slice(0, 10)
+                }
+                fetchData(data);
+            }
+            setcheckinAttendees([]);
+            closeModal('checkinModal');
+            toast.success(res.data.message);
+        } else {
+            toast.error('Something went worng!');
+        }
+    }
+
     return (
         <>
             <div className="container mt-5">
@@ -147,7 +208,7 @@ export default function Dashboard() {
                                     <div>{item.instructor}</div>
                                     <div>{item.event_time}</div>
                                     <div className={`fw-bold ${styles.attCount}`}>{item.attendees.length}</div>
-                                    <div>
+                                    <div onClick={() => openCheckModal()}>
                                         <i className={`bi bi-check2-circle ${styles.iconColor}`}></i>
                                     </div>
                                 </div>
@@ -156,7 +217,7 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                <div className={`mt-3 p-2 ${styles.listMainBox}`}>
+                <div className={`my-3 p-2 ${styles.listMainBox}`}>
                     <div className={`${styles.listBox}`}>
                         <div className={`fw-bold text-center`}>
                             Attendee
@@ -164,10 +225,10 @@ export default function Dashboard() {
 
                         {
                             classes &&
-                            classes[selectedClass]?.attendees.map((item: any, i: number) => (
+                            classes[selectedClass]?.checked_in.map((item: any, i: number) => (
                                 <div className='d-flex align-items-center justify-content-between mb-2' key={i}>
                                     <div>
-                                        {item.attendee_initial}
+                                        {item?.attendee_initial?.toUpperCase()}
                                     </div>
 
                                     <div>
@@ -185,7 +246,6 @@ export default function Dashboard() {
 
             </div>
 
-
             <div className="modal fade" id="deleteModal" tabIndex={-1} aria-labelledby="deleteModalLabel" aria-hidden="true">
                 <div className="modal-dialog modal-sm">
                     <div className="modal-content">
@@ -200,6 +260,58 @@ export default function Dashboard() {
                         <div className="modal-footer">
                             <button type="button" className={`btn ${styles.btnOutline}`} data-bs-dismiss="modal">Cancel</button>
                             <button type="button" className={`btn ${styles.btnColor}`} onClick={() => removeUser()}>Yes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="modal fade" id="checkinModal" tabIndex={-1} aria-labelledby="checkinModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div className="modal-dialog">
+                    <div className="modal-content">
+
+                        <div className="modal-body">
+                            <h5 className='text-center fw-bold'>
+                                Check-In Attendees
+                            </h5>
+
+                            <div>
+                                <div className="form-check">
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        id="checkinAttendee"
+                                        onChange={handleSelectAllCheckinAttendees}
+                                    />
+                                    <label className="form-check-label" htmlFor="checkinAttendee">
+                                        Select All
+                                    </label>
+                                </div>
+
+                                <div>
+                                    {classes &&
+                                        classes[selectedClass]?.attendees.map((item: any, i: number) => (
+                                            <div className="form-check" key={i}>
+                                                <input
+                                                    className="form-check-input"
+                                                    type="checkbox"
+                                                    value={item.user_id}
+                                                    id={'checkinAttendee' + i}
+                                                    onChange={handleCheckinAttendeeCheck}
+                                                    checked={checkinAttendees.includes(item.user_id)}
+                                                />
+                                                <label className="form-check-label" htmlFor={'checkinAttendee' + i}>
+                                                    {item.attendee_name}
+                                                </label>
+                                            </div>
+                                        ))}
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div className="modal-footer d-flex align-items-center justify-content-between">
+                            <button type="button" className={`btn ${styles.btnOutline}`} onClick={() => closeModal('checkinModal')}>Cancel</button>
+                            <button type="button" className={`btn ${styles.btnColor}`} onClick={() => saveCheckinAttendees()}>Save</button>
                         </div>
                     </div>
                 </div>
