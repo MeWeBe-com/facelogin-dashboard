@@ -1,11 +1,33 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useCookies } from 'next-client-cookies';
 
 import styles from './attendance.module.css';
+import Http from '@/providers/axiosInstance';
+import { toast } from "react-toastify";
 
 export default function Attendance() {
+    const cookies = useCookies();
     const router = useRouter();
+    const [attendeesList, setAttendeesList] = useState<any>([]);
+
+    useEffect(() => {
+        let id = cookies.get('org_id');
+        if (id) {
+            getAttendees(id);
+        } else {
+            toast.error('Something went wrong!');
+        }
+    }, []);
+
+    const getAttendees = async (orgId: any) => {
+        let res = await Http.get(`GetAllAttendees/${orgId}`);
+        if (res && res.status == true) {
+            setAttendeesList(res.data.attendees);
+        }
+    }
 
     return (
         <>
@@ -18,7 +40,7 @@ export default function Attendance() {
                 <div className={`${styles.box}`}>
                     <div className={`fw-bold ${styles.boxHead} d-flex align-items-center justify-content-between`}>
                         <div>
-                            Attendees List (10)
+                            Attendees List ({attendeesList.length})
                         </div>
 
                         <div>
@@ -57,102 +79,32 @@ export default function Attendance() {
                             </div>
                         </div>
 
-                        <div className={`mb-3 d-flex align-items-center ${styles.headBox}`}>
-                            <div>
-                                Ali jawas Jadoon
-                            </div>
+                        {
+                            attendeesList &&
+                            attendeesList.map((item: any, i: number) => (
+                                <div className={`mb-3 d-flex align-items-center ${styles.headBox}`} key={i}>
+                                    <div>
+                                        {item.fullname}
+                                    </div>
 
-                            <div>
-                                Flexible
-                            </div>
+                                    <div>
+                                        Flexible
+                                    </div>
 
-                            <div>
-                                12
-                            </div>
+                                    <div>
+                                        12
+                                    </div>
 
-                            <div>
-                                22-Feb-2025
-                            </div>
+                                    <div>
+                                        22-Feb-2025
+                                    </div>
 
-                            <div>
-                                <button className={`btn ${styles.btnOutline}`}>Paid</button> 224 via bank
-                            </div>
-                        </div>
-
-                        <div className={`mb-3 d-flex align-items-center ${styles.headBox}`}>
-                            <div>
-                                Essam Sulaiman
-                            </div>
-
-                            <div>
-                                Flexible
-                            </div>
-
-                            <div>
-                                9
-                            </div>
-
-                            <div>
-                                25-Feb-2025
-                            </div>
-
-                            <div>
-                                <button className={`btn ${styles.btnOutline}`}>Paid</button> 224 via bank
-
-                                <div className='text-center'>
-                                    3x a week
+                                    <div>
+                                        <button className={`btn ${styles.btnOutline}`}>Paid</button> 224 via bank
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <div className={`mb-3 d-flex align-items-center ${styles.headBox}`}>
-                            <div>
-                                Essam Sulaiman
-                            </div>
-
-                            <div>
-                                Flexible
-                            </div>
-
-                            <div>
-                                9
-                            </div>
-
-                            <div>
-                                25-Feb-2025
-                            </div>
-
-                            <div>
-                                <button className={`btn ${styles.btnOutline}`}>Paid</button> 224 via bank
-                            </div>
-                        </div>
-
-                        <div className={`mb-23 d-flex align-items-center ${styles.headBox}`}>
-                            <div>
-                                Essam Sulaiman
-                            </div>
-
-                            <div>
-                                Flexible
-                            </div>
-
-                            <div>
-                                9
-                            </div>
-
-                            <div>
-                                25-Feb-2025
-                            </div>
-
-                            <div>
-                                <button className={`btn ${styles.btnOutline}`}>Paid</button> 224 via bank
-
-                                <div className='text-center'>
-                                    3x a week
-                                </div>
-                            </div>
-                        </div>
-
+                            ))
+                        }
                     </div>
                 </div>
 
