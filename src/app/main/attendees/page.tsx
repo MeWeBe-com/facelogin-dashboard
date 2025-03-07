@@ -8,7 +8,7 @@ import styles from './attendance.module.css';
 import Http from '@/providers/axiosInstance';
 import { toast } from "react-toastify";
 
-export default function Attendance() {
+const Attendance = () => {
     const cookies = useCookies();
     const router = useRouter();
     const [attendeesList, setAttendeesList] = useState<any>([]);
@@ -115,3 +115,5 @@ export default function Attendance() {
         </>
     )
 }
+
+export default Attendance;

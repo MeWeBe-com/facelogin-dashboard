@@ -8,7 +8,7 @@ import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import { useRef, useState } from 'react';
 
-export default function CreateAttendee() {
+const CreateAttendee = () => {
     const router = useRouter();
     const cookies = useCookies();
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -228,3 +228,5 @@ export default function CreateAttendee() {
         </>
     )
 }
+
+export default CreateAttendee;

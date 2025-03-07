@@ -5,11 +5,9 @@ import BootstrapClient from '@/components/BootstrapClient/BootstrapClient';
 import { ToastContainer } from 'react-toastify';
 import { CookiesProvider } from 'next-client-cookies/server';
 
-export default function RootLayout({
+const RootLayout = ({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode; }>) => {
 
   return (
     <html lang="en">
@@ -23,3 +21,5 @@ export default function RootLayout({
     </html>
   );
 }
+
+export default RootLayout;

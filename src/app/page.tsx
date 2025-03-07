@@ -10,12 +10,14 @@ export default function Home() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    const referrerDomain = document.referrer;
+
     const id = searchParams.get('org_id');
     if (id) {
       cookies.set('org_id', id);
       redirect("/main/dashboard");
     } else {
-      redirect("/auth/login");
+      redirect("/auth/notfound");
     }
   }, [searchParams]); // Runs whenever search params change
 

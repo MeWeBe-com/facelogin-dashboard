@@ -6,7 +6,7 @@ import { useCookies } from 'next-client-cookies';
 import { toast } from 'react-toastify';
 import { useEffect, useState, useRef } from "react";
 
-export default function Reports() {
+const Settings = () => {
     const cookies = useCookies();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -170,3 +170,5 @@ export default function Reports() {
         </>
     )
 }
+
+export default Settings;

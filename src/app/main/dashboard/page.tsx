@@ -7,8 +7,7 @@ import { redirect } from "next/navigation";
 import { useCookies } from 'next-client-cookies';
 import { toast } from 'react-toastify';
 
-
-export default function Dashboard() {
+const Dashboard = () => {
     const cookies = useCookies();
     const [today, setToday] = useState<Date>(new Date());
     const [debouncedDate, setDebouncedDate] = useState<Date>(today);
@@ -320,3 +319,5 @@ export default function Dashboard() {
         </>
     )
 }
+
+export default Dashboard;

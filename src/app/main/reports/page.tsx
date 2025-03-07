@@ -1,7 +1,7 @@
 "use client"
 import styles from './reports.module.css';
 
-export default function Reports() {
+const Reports = () => {
     return (
         <>
             <div className="container mt-5">
@@ -131,3 +131,5 @@ export default function Reports() {
         </>
     )
 }
+
+export default Reports;

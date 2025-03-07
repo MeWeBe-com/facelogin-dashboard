@@ -12,7 +12,7 @@ import dayGridPlugin from "@fullcalendar/daygrid"; // For month view
 import timeGridPlugin from "@fullcalendar/timegrid"; // For week & day views
 import interactionPlugin from "@fullcalendar/interaction";
 
-export default function Attendance() {
+const Schedule = () => {
     const cookies = useCookies();
     const [classesTypes, setClassesTypes] = useState<any>([]);
     const [classes, setClasses] = useState<any>([]);
@@ -628,3 +628,5 @@ export default function Attendance() {
         </>
     )
 }
+
+export default Schedule;

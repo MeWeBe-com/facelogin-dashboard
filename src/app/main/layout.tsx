@@ -1,8 +1,8 @@
 import Header from "@/components/Header/Header";
 
-export default function MainLayout({
+const MainLayout = ({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{ children: React.ReactNode }>) => {
   return (
     <>
       <Header />  {/* Header is only included here */}
@@ -10,3 +10,5 @@ export default function MainLayout({
     </>
   );
 }
+
+export default MainLayout;
