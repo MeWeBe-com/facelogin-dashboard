@@ -1,4 +1,5 @@
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const BASE_URL = "https://bwm.mewebe.net/api/";
 
@@ -12,9 +13,13 @@ const get = async (url: string) => {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
     }
-
     try {
-        let res = await axiosConfig.get(url, { headers: headers });
+        const res: any = await toast.promise(
+            axiosConfig.get(url, { headers: headers }),
+            {
+                pending: 'Please Wait...',
+            }
+        );
         return res.data;
     } catch (e) {
         console.log(e)
@@ -28,7 +33,12 @@ const post = async (url: string, data: any) => {
         'Accept': 'application/json'
     }
     try {
-        const res = await axiosConfig.post(url, data, { headers: headers })
+        const res: any = await toast.promise(
+            axiosConfig.post(url, data, { headers: headers }),
+            {
+                pending: 'Please Wait...',
+            }
+        );
         return res.data;
     } catch (error) {
         return handleError(error);
@@ -37,10 +47,16 @@ const post = async (url: string, data: any) => {
 
 // File Upload (multipart/form-data)
 const fileUpload = async (url: string, formData: FormData) => {
+    let headers = {
+        "Content-Type": "multipart/form-data"
+    }
     try {
-        const res = await axiosConfig.post(url, formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-        });
+        const res: any = await toast.promise(
+            axiosConfig.post(url, formData, { headers: headers, }),
+            {
+                pending: 'Please Wait...',
+            }
+        );
         return res.data;
     } catch (error) {
         return handleError(error);
