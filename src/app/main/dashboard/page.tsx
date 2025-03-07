@@ -206,7 +206,7 @@ const Dashboard = () => {
                                     <h6>{item.event_name}</h6>
                                     <div>{item.instructor}</div>
                                     <div>{item.event_time}</div>
-                                    <div className={`fw-bold ${styles.attCount}`}>{item.attendees.length}</div>
+                                    <div className={`fw-bold ${styles.attCount}`}>{item.checked_in.length}</div>
                                     <div onClick={() => openCheckModal()}>
                                         <i className={`bi bi-check2-circle ${styles.iconColor}`}></i>
                                     </div>
