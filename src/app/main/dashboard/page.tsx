@@ -158,7 +158,7 @@ const Dashboard = () => {
             closeModal('checkinModal');
             toast.success(res.data.message);
         } else {
-            toast.error('Something went worng!');
+            toast.error(res.data.message);
         }
     }
 

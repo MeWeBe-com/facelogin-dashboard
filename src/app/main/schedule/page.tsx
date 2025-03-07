@@ -345,7 +345,7 @@ const Schedule = () => {
             closeModal('checkInModal');
             toast.success(res.data.message);
         } else {
-            toast.error('Something went worng!');
+            toast.error(res.data.message);
         }
     }
 
