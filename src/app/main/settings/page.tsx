@@ -34,7 +34,6 @@ const Settings = () => {
 
     const getOrgDetails = async (id: any) => {
         let res = await Http.get(`/GetOrganization/${id}`)
-        console.log(res);
         setOrgProfile({
             id: id,
             organization_logo: res.data.organization_logo,
