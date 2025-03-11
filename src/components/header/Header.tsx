@@ -26,7 +26,7 @@ const Header = () => {
                 <div className="d-flex align-items-center">
                     <Link href="/main/dashboard" style={{ textDecoration: 'none' }}>
                         <Image src="/imgs/logo.png" alt="Logo" width={50} height={50} priority />
-                        <span className="fw-bold ms-2 text-dark" >Izza Mixed Martial Arts</span>
+                        <span className="fw-bold ms-2 text-dark" >Attendance Pass</span>
                     </Link>
                 </div>
 

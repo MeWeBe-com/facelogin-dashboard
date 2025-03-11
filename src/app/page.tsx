@@ -12,7 +12,7 @@ export default function Home() {
   useEffect(() => {
     const referrerDomain = document.referrer;
 
-    const id = searchParams.get('org_id');
+    const id = searchParams.get('id');
     if (id) {
       cookies.set('org_id', id);
       redirect("/main/dashboard");
