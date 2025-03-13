@@ -29,6 +29,16 @@ const Attendance = () => {
         }
     }
 
+    const sortBy = (type: 'date' | 'name') => {
+        const sortedArray = [...attendeesList];
+        if (type === 'date') {
+            sortedArray.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        } else if (type === 'name') {
+            sortedArray.sort((a, b) => a.fullname.localeCompare(b.fullname));
+        }
+        setAttendeesList(sortedArray);
+    };
+
     return (
         <>
             <div className="container mt-5">
@@ -49,8 +59,8 @@ const Attendance = () => {
                                     Sort
                                 </button>
                                 <ul className="dropdown-menu">
-                                    <li><a className="dropdown-item" href="#">Date</a></li>
-                                    <li><a className="dropdown-item" href="#">Name</a></li>
+                                    <li className="dropdown-item" onClick={() => sortBy('date')}>Date</li>
+                                    <li className="dropdown-item" onClick={() => sortBy('name')}>Name</li>
                                 </ul>
                             </div>
                         </div>
