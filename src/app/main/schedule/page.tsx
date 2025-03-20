@@ -87,7 +87,7 @@ const Schedule = () => {
     const formatEvents = (classArr: any) => {
         let arr: any = [];
         classArr.forEach((item: any) => {
-            
+
             arr.push({ ...item, title: item.event_type_name, start: new Date(`${item.event_start_date}T${item.event_start_time}:00Z`) })
         });
         return arr;
@@ -442,8 +442,17 @@ const Schedule = () => {
 
                                     <div className="modal-footer d-flex align-items-center justify-content-between">
                                         <button type="button" className={`btn ${styles.btnDanger}`} onClick={() => deleteClass()}>Delete</button>
-                                        <button type="button" className={`btn ${styles.btnOutline2}`} onClick={() => openCheckinModal()}>Check-In</button>
-                                        <button type="button" className={`btn ${styles.btnOutline2}`} onClick={() => openAttendeeModal()}>Add Attendee</button>
+
+                                        {
+                                            modalType !== 'Add Class' ?
+                                                <>
+                                                    <button type="button" className={`btn ${styles.btnOutline2}`} onClick={() => openCheckinModal()}>Check-In</button>
+                                                    <button type="button" className={`btn ${styles.btnOutline2}`} onClick={() => openAttendeeModal()}>Add Attendee</button>
+                                                </>
+
+                                                :
+                                                null
+                                        }
 
                                         <button type="button" className={`btn ${styles.btnOutline}`} onClick={() => closeModal('editModal')}>Cancel</button>
                                         <button type="submit" className={`btn ${styles.btnColor}`} disabled={isSubmitting}>Save</button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styles from './dashbaord.module.css';
 import Http from "@/providers/axiosInstance";
 import { toast } from 'react-toastify';
@@ -106,8 +106,6 @@ const Dashboard = () => {
         });
     };
 
-
-
     // checkin attendee
     const handleCheckinAttendeeCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
         const attendeeId = Number(e.target.value); // Convert to number
@@ -157,6 +155,13 @@ const Dashboard = () => {
         }
     }
 
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const dateInputRef = useRef<HTMLInputElement>(null);
+
+    const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setToday(new Date(event.target.value))
+    };
+
     return (
         <>
             <div className="container mt-5">
@@ -165,8 +170,28 @@ const Dashboard = () => {
 
             <div className="container">
                 <div className="d-flex justify-content-end p-3 align-items-center">
-                    <div>
-                        {new Date(today).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', })}
+                    {/* <div>
+                        
+
+                    </div> */}
+
+                    <div className="position-relative">
+                        {/* Clickable Date Display */}
+                        <div
+                            onClick={() => dateInputRef.current?.showPicker()}
+                            className="cursor-pointer bg-gray-200 p-2 rounded-md"
+                        >
+                            {new Date(today).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', })}
+                        </div>
+
+                        <input
+                            type="date"
+                            ref={dateInputRef}
+                            className='position-absolute'
+                            style={{ visibility: 'hidden' }}
+                            value={selectedDate.toISOString().slice(0, 10)}
+                            onChange={handleDateChange}
+                        />
                     </div>
 
                     <div>
