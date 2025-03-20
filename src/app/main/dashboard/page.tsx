@@ -3,12 +3,9 @@
 import { useEffect, useState } from 'react';
 import styles from './dashbaord.module.css';
 import Http from "@/providers/axiosInstance";
-import { redirect } from "next/navigation";
-import { useCookies } from 'next-client-cookies';
 import { toast } from 'react-toastify';
 
 const Dashboard = () => {
-    const cookies = useCookies();
     const [today, setToday] = useState<Date>(new Date());
     const [debouncedDate, setDebouncedDate] = useState<Date>(today);
 
@@ -75,15 +72,13 @@ const Dashboard = () => {
     }, [today]);
 
     useEffect(() => {
-        let id = cookies.get('org_id');
+        const id = localStorage.getItem('id');
         if (id) {
             let data = {
                 org_id: id,
                 date: new Date(today).toISOString().slice(0, 10)
             }
             fetchData(data);
-        } else {
-            redirect("/auth/login");
         }
     }, [debouncedDate])
 
@@ -141,12 +136,12 @@ const Dashboard = () => {
         let data = {
             user_id: checkinAttendees,
             event_id: classes[selectedClass]?.id,
-            organization_id: cookies.get('org_id')
+            organization_id: localStorage.getItem('id')
         };
 
         let res = await Http.post('UserCheckin', data);
         if (res && res.status == true) {
-            let id = cookies.get('org_id');
+            let id = localStorage.getItem('id');
             if (id) {
                 let data = {
                     org_id: id,

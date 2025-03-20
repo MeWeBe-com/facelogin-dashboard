@@ -2,12 +2,10 @@
 
 import styles from './settings.module.css';
 import Http from '@/providers/axiosInstance';
-import { useCookies } from 'next-client-cookies';
 import { toast } from 'react-toastify';
 import { useEffect, useState, useRef } from "react";
 
 const Settings = () => {
-    const cookies = useCookies();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [logoPreview, setLogoPreview] = useState<any>('');
@@ -23,7 +21,7 @@ const Settings = () => {
 
 
     useEffect(() => {
-        let id = cookies.get('org_id');
+        let id = localStorage.getItem('id');
         if (id) {
             getOrgDetails(id);
         } else {

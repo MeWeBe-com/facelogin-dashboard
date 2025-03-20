@@ -4,11 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import styles from "./style.module.css";
 import { useRouter } from "next/navigation";
-import { useCookies } from 'next-client-cookies';
-
 
 const Header = () => {
-    const cookies = useCookies();
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
 
@@ -16,7 +13,7 @@ const Header = () => {
 
     const onLogout = () => {
         closeNavbar();
-        cookies.remove('org_id');
+        localStorage.removeItem('id');
         router.push("/auth/login");
     }
 

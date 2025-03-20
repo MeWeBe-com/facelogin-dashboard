@@ -2,19 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useCookies } from 'next-client-cookies';
 
 import styles from './attendance.module.css';
 import Http from '@/providers/axiosInstance';
 import { toast } from "react-toastify";
 
 const Attendance = () => {
-    const cookies = useCookies();
     const router = useRouter();
     const [attendeesList, setAttendeesList] = useState<any>([]);
 
     useEffect(() => {
-        let id = cookies.get('org_id');
+        let id = localStorage.getItem('id');
         if (id) {
             getAttendees(id);
         } else {

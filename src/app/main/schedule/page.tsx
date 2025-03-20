@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import styles from './schedule.module.css';
 import Http from '@/providers/axiosInstance';
-import { useCookies } from 'next-client-cookies';
 import { toast } from 'react-toastify';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
@@ -13,7 +12,6 @@ import timeGridPlugin from "@fullcalendar/timegrid"; // For week & day views
 import interactionPlugin from "@fullcalendar/interaction";
 
 const Schedule = () => {
-    const cookies = useCookies();
     const [classesTypes, setClassesTypes] = useState<any>([]);
     const [classes, setClasses] = useState<any>([]);
 
@@ -38,7 +36,7 @@ const Schedule = () => {
 
     const initialValues = {
         id: selectedClass?.id || "",
-        organization_id: cookies.get('org_id'),
+        organization_id: localStorage.getItem('id'),
         event_type_id: selectedClass?.event_type_id || "",
         user_id: selectedClass?.user_id || "",
         event_start_date: selectedClass?.event_start_date || "",
@@ -53,7 +51,7 @@ const Schedule = () => {
     const [checkinAttendees, setcheckinAttendees] = useState<any>([]);
 
     useEffect(() => {
-        let id = cookies.get('org_id');
+        const id = localStorage.getItem('id');
         if (id) {
             getClassesType(id);
             getClasses(id);
@@ -89,6 +87,7 @@ const Schedule = () => {
     const formatEvents = (classArr: any) => {
         let arr: any = [];
         classArr.forEach((item: any) => {
+            
             arr.push({ ...item, title: item.event_type_name, start: new Date(`${item.event_start_date}T${item.event_start_time}:00Z`) })
         });
         return arr;
@@ -168,13 +167,13 @@ const Schedule = () => {
     const updateEventType = async () => {
         let data = {
             id: selectedClassType ? selectedClassType.id : '',
-            organization_id: cookies.get('org_id'),
+            organization_id: localStorage.getItem('id'),
             event_type_name: classTypeName
         };
         let res = await Http.post('AddEditEventsTypes', data);
         if (res && res.status == true) {
             closeModal('addClassTypeModal');
-            let id = cookies.get('org_id');
+            let id = localStorage.getItem('id');
             if (id) {
                 getClassesType(id);
             }
@@ -187,7 +186,7 @@ const Schedule = () => {
     const deleteClassType = async () => {
         let res = await Http.get(`DeleteClassTypeByID/${selectedClassType.id}`);
         if (res && res.status == true) {
-            let id = cookies.get('org_id');
+            let id = localStorage.getItem('id');
             if (id) {
                 getClassesType(id);
             }
@@ -202,7 +201,7 @@ const Schedule = () => {
     const saveClass = async (values: any) => {
         let res = await Http.post('AddEditEvents', values);
         if (res && res.status == true) {
-            let id = cookies.get('org_id');
+            let id = localStorage.getItem('id');
             if (id) {
                 getClasses(id);
             }
@@ -220,7 +219,7 @@ const Schedule = () => {
         if (selectedClass) {
             let res = await Http.get(`DeleteEventByID/${selectedClass.id}`);
             if (res && res.status) {
-                let id = cookies.get('org_id');
+                let id = localStorage.getItem('id');
                 if (id) {
                     getClasses(id);
                 }
@@ -292,7 +291,7 @@ const Schedule = () => {
         if (res && res.status == true) {
             setAttendeesClass(null);
             setcheckinAttendees([]);
-            let id = cookies.get('org_id');
+            let id = localStorage.getItem('id');
             if (id) {
                 getClasses(id);
             }
@@ -331,12 +330,12 @@ const Schedule = () => {
         let data = {
             user_id: checkinAttendees,
             event_id: attendeesClass.id,
-            organization_id: cookies.get('org_id')
+            organization_id: localStorage.getItem('id')
         };
 
         let res = await Http.post('UserCheckin', data);
         if (res && res.status == true) {
-            let id = cookies.get('org_id');
+            let id = localStorage.getItem('id');
             if (id) {
                 getClasses(id);
             }

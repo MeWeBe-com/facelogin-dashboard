@@ -2,7 +2,6 @@
 import styles from './createattendee.module.css';
 import { useRouter } from "next/navigation";
 import Http from '@/providers/axiosInstance';
-import { useCookies } from 'next-client-cookies';
 import { toast } from 'react-toastify';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
@@ -10,12 +9,10 @@ import { useRef, useState } from 'react';
 
 const CreateAttendee = () => {
     const router = useRouter();
-    const cookies = useCookies();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [userImagePreview, setUserImagePreview] = useState<any>(null);
     const [userImageToUpdate, setUserImageToUpdate] = useState<any>(null);
-
 
     const handleButtonClick = () => {
         if (fileInputRef.current) {
@@ -46,7 +43,7 @@ const CreateAttendee = () => {
     });
 
     const registerUser = async (values: any, resetForm: any) => {
-        let org_id: any = cookies.get('org_id');
+        let org_id: any = localStorage.getItem('id');
         let formData = new FormData();
         formData.append('id', '');
         formData.append('organization_id', org_id);
@@ -67,7 +64,6 @@ const CreateAttendee = () => {
             toast.error(res.message)
         }
     }
-
 
     return (
         <>

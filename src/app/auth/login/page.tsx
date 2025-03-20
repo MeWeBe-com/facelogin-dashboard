@@ -38,7 +38,7 @@ const Login = () => {
                         <Link href="/auth/forgotpassword" className={styles.forgot}>Forgot password?</Link>
                     </div>
 
-                    <button className={`btn w-100 ${styles.loginBtn}`} onClick={() => router.push("/?org_id=1")}>Log In</button>
+                    <button className={`btn w-100 ${styles.loginBtn}`}>Log In</button>
 
                     <p className="text-center mt-3">
                         We are currently in closed Beta. Currently, you cannot create an organisation.

@@ -1,12 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { redirect } from "next/navigation";
-import { useCookies } from 'next-client-cookies';
+import { useEffect } from 'react';
+import { useSearchParams, redirect } from 'next/navigation';
 
 export default function Home() {
-  const cookies = useCookies();
   const searchParams = useSearchParams();
 
   useEffect(() => {
@@ -14,10 +11,10 @@ export default function Home() {
 
     const id = searchParams.get('id');
     if (id) {
-      cookies.set('org_id', id);
-      redirect("/main/dashboard");
-    } else {
-      redirect("/auth/notfound");
+      localStorage.setItem('id' , id);
+      setTimeout(() => {
+        redirect(`/main/dashboard`);
+      }, 100)
     }
   }, [searchParams]); // Runs whenever search params change
 
