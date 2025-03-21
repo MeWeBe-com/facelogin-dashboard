@@ -48,7 +48,6 @@ const Schedule = () => {
     const [attendeesList, setAttendeesList] = useState<any>([]);
     const [selectedAttendees, setselectedAttendees] = useState<any>([]);
     const [attendeesClass, setAttendeesClass] = useState<any>(null);
-    const [checkinAttendees, setcheckinAttendees] = useState<any>([]);
 
     useEffect(() => {
         const id = localStorage.getItem('id');
@@ -69,8 +68,8 @@ const Schedule = () => {
         }
     }
 
-    const getInstructors = async (ordIg: any) => {
-        let res = await Http.get(`getInstructorByOrganizationID/${ordIg}`);
+    const getInstructors = async (orgId: any) => {
+        let res = await Http.get(`getInstructorByOrganizationID/${orgId}`);
         if (res && res.status == true) {
             setInstructors(res.data.instructor);
         }
@@ -87,8 +86,7 @@ const Schedule = () => {
     const formatEvents = (classArr: any) => {
         let arr: any = [];
         classArr.forEach((item: any) => {
-
-            arr.push({ ...item, title: item.event_type_name, start: new Date(`${item.event_start_date}T${item.event_start_time}:00Z`) })
+            arr.push({ ...item, title: item.event_type_name, start: new Date(`${item.event_start_date}T${item.event_start_time}:00`) })
         });
         return arr;
     }
@@ -244,20 +242,7 @@ const Schedule = () => {
         }
     }
 
-    const openAttendeeModal = () => {
-        if (selectedClass) {
-            setAttendeesClass(selectedClass);
-            closeModal('editModal');
-            const modalElement = document.getElementById("addAttendeeModal");
-            if (modalElement && window.bootstrap) {
-                const modal = new window.bootstrap.Modal(modalElement);
-                modal.show();
-            }
-        }
-    }
-
-
-    // add attendee
+    // Checkin Modal
     const handleAddAllAttendeeCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
         const isChecked = e.target.checked;
         if (isChecked) {
@@ -277,61 +262,18 @@ const Schedule = () => {
         );
     };
 
-    const saveAddAttendees = async () => {
+    const saveCheckinAttendees = async () => {
         if (selectedAttendees.length == 0) {
             toast.error('Please select Attendees');
             return
         }
         let data = {
-            event_id: attendeesClass.id,
             user_id: selectedAttendees,
-        };
-
-        let res = await Http.post('AddAttendeeintoEvent', data);
-        if (res && res.status == true) {
-            setAttendeesClass(null);
-            setcheckinAttendees([]);
-            let id = localStorage.getItem('id');
-            if (id) {
-                getClasses(id);
-            }
-            closeModal('addAttendeeModal');
-            toast.success(res.data.message);
-        } else {
-            toast.error('Something went worng!');
-        }
-    }
-
-    // checkin attendee
-    const handleCheckinAttendeeCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const attendeeId = Number(e.target.value); // Convert to number
-        const isChecked = e.target.checked;
-
-        setcheckinAttendees((prevState: number[]) =>
-            isChecked ? [...prevState, attendeeId] : prevState.filter((id) => id !== attendeeId)
-        );
-    };
-
-    const handleSelectAllCheckinAttendees = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const isChecked = e.target.checked;
-        if (isChecked) {
-            const allAttendeeIds = attendeesClass.attendee_event_users.map((attendee: any) => attendee.user_id);
-            setcheckinAttendees(allAttendeeIds);
-        } else {
-            setcheckinAttendees([]);
-        }
-    };
-
-    const saveCheckinAttendees = async () => {
-        if (checkinAttendees.length == 0) {
-            toast.error('Please select Attendees');
-            return
-        }
-        let data = {
-            user_id: checkinAttendees,
             event_id: attendeesClass.id,
             organization_id: localStorage.getItem('id')
         };
+
+        console.log(data, selectedAttendees)
 
         let res = await Http.post('UserCheckin', data);
         if (res && res.status == true) {
@@ -340,12 +282,25 @@ const Schedule = () => {
                 getClasses(id);
             }
             setAttendeesClass(null);
-            setcheckinAttendees([]);
             closeModal('checkInModal');
             toast.success(res.data.message);
         } else {
             toast.error(res.data.message);
         }
+    }
+
+    const showDateTime = (date: any) => {
+
+        const eventDateTime = new Date(`${date}`);
+        // Format the date as "19-Mar-25"
+        const formattedDate = eventDateTime.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "2-digit",
+        }).replace(",", "");
+
+        const finalFormatted = `${formattedDate}`;
+        return finalFormatted
     }
 
     return (
@@ -422,7 +377,15 @@ const Schedule = () => {
 
                                             <div className="mb-3">
                                                 <label className="form-label">Start Time</label>
-                                                <Field type="time" name="event_start_time" className={`form-control ${styles.myInput}`} />
+                                                <Field as="select" name="event_start_time" className="form-control">
+                                                    {[...Array(24)].map((_, hour) =>
+                                                        ["00", "15", "30", "45"].map((min) => (
+                                                            <option key={`${hour}:${min}`} value={`${String(hour).padStart(2, "0")}:${min}`}>
+                                                                {`${String(hour).padStart(2, "0")}:${min}`}
+                                                            </option>
+                                                        ))
+                                                    )}
+                                                </Field>
                                                 <ErrorMessage name="event_start_time" component="div" className="text-danger" />
                                             </div>
 
@@ -434,7 +397,15 @@ const Schedule = () => {
 
                                             <div className="mb-3">
                                                 <label className="form-label">End Time</label>
-                                                <Field type="time" name="event_end_time" className={`form-control ${styles.myInput}`} />
+                                                <Field as="select" name="event_end_time" className="form-control">
+                                                    {[...Array(24)].map((_, hour) =>
+                                                        ["00", "15", "30", "45"].map((min) => (
+                                                            <option key={`${hour}:${min}`} value={`${String(hour).padStart(2, "0")}:${min}`}>
+                                                                {`${String(hour).padStart(2, "0")}:${min}`}
+                                                            </option>
+                                                        ))
+                                                    )}
+                                                </Field>
                                                 <ErrorMessage name="event_end_time" component="div" className="text-danger" />
                                             </div>
                                         </div>
@@ -447,7 +418,7 @@ const Schedule = () => {
                                             modalType !== 'Add Class' ?
                                                 <>
                                                     <button type="button" className={`btn ${styles.btnOutline2}`} onClick={() => openCheckinModal()}>Check-In</button>
-                                                    <button type="button" className={`btn ${styles.btnOutline2}`} onClick={() => openAttendeeModal()}>Add Attendee</button>
+                                                    {/* <button type="button" className={`btn ${styles.btnOutline2}`} onClick={() => openAttendeeModal()}>Add Attendee</button> */}
                                                 </>
 
                                                 :
@@ -535,61 +506,12 @@ const Schedule = () => {
                     <div className="modal-content">
 
                         <div className="modal-body">
-                            <h5 className='text-center fw-bold'>
-                                Check-In Attendees
-                            </h5>
-
-                            <div>
-                                <div className="form-check">
-                                    <input
-                                        className="form-check-input"
-                                        type="checkbox"
-                                        id="checkInAttendee"
-                                        onChange={handleSelectAllCheckinAttendees}
-                                    />
-                                    <label className="form-check-label" htmlFor="checkInAttendee">
-                                        Select All
-                                    </label>
-                                </div>
-
-                                <div>
-                                    {attendeesClass &&
-                                        attendeesClass.attendee_event_users.map((item: any, i: number) => (
-                                            <div className="form-check" key={i}>
-                                                <input
-                                                    className="form-check-input"
-                                                    type="checkbox"
-                                                    value={item.user_id}
-                                                    id={'checkInAttendee' + i}
-                                                    onChange={handleCheckinAttendeeCheck}
-                                                    checked={checkinAttendees.includes(item.user_id)}
-                                                />
-                                                <label className="form-check-label" htmlFor={'checkInAttendee' + i}>
-                                                    {item.attendee_name}
-                                                </label>
-                                            </div>
-                                        ))}
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <div className="modal-footer d-flex align-items-center justify-content-between">
-                            <button type="button" className={`btn ${styles.btnOutline}`} onClick={() => closeModal('checkInModal')}>Cancel</button>
-                            <button type="button" className={`btn ${styles.btnColor}`} onClick={() => saveCheckinAttendees()}>Save</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="modal fade" id="addAttendeeModal" tabIndex={-1} aria-labelledby="addAttendeeModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" >
-                <div className="modal-dialog">
-                    <div className="modal-content">
-
-                        <div className="modal-body">
-                            <h5 className='text-center fw-bold'>
-                                Add Attendees
-                            </h5>
+                            <h6 className='fw-bold'>
+                                Check-In for {attendeesClass?.event_type_name + ' on ' + showDateTime(attendeesClass?.event_start_date) + ' ' + attendeesClass?.event_start_time}
+                                <br />
+                                <br />
+                                Select Attendees to Check-In
+                            </h6>
 
                             <div>
                                 <div className="form-check">
@@ -627,8 +549,8 @@ const Schedule = () => {
                         </div>
 
                         <div className="modal-footer d-flex align-items-center justify-content-between">
-                            <button type="button" className={`btn ${styles.btnOutline}`} onClick={() => closeModal('addAttendeeModal')}>Cancel</button>
-                            <button type="button" className={`btn ${styles.btnColor}`} onClick={() => saveAddAttendees()}>Save</button>
+                            <button type="button" className={`btn ${styles.btnOutline}`} onClick={() => closeModal('checkInModal')}>Cancel</button>
+                            <button type="button" className={`btn ${styles.btnColor}`} onClick={() => saveCheckinAttendees()}>Save</button>
                         </div>
                     </div>
                 </div>

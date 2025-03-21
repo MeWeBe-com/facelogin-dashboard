@@ -112,14 +112,14 @@ const Dashboard = () => {
         const isChecked = e.target.checked;
 
         setcheckinAttendees((prevState: number[]) =>
-            isChecked ? [...prevState, attendeeId] : prevState.filter((user_id) => user_id !== attendeeId)
+            isChecked ? [...prevState, attendeeId] : prevState.filter((id) => id !== attendeeId)
         );
     };
 
     const handleSelectAllCheckinAttendees = (e: React.ChangeEvent<HTMLInputElement>) => {
         const isChecked = e.target.checked;
         if (isChecked) {
-            const allAttendeeIds = classes[selectedClass]?.attendees.map((attendee: any) => attendee.user_id);
+            const allAttendeeIds = classes[selectedClass]?.attendees.map((attendee: any) => attendee.id);
             setcheckinAttendees(allAttendeeIds);
         } else {
             setcheckinAttendees([]);
@@ -161,6 +161,20 @@ const Dashboard = () => {
     const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setToday(new Date(event.target.value))
     };
+
+    const showDateTime = (date: any) => {
+
+        const eventDateTime = new Date(`${date}`);
+        // Format the date as "19-Mar-25"
+        const formattedDate = eventDateTime.toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "2-digit",
+        }).replace(",", "");
+
+        const finalFormatted = `${formattedDate}`;
+        return finalFormatted
+    }
 
     return (
         <>
@@ -218,20 +232,23 @@ const Dashboard = () => {
                     </div>
 
                     <div className={`d-flex mt-2 ${styles.attMainBox}`}>
-
                         {
-                            classes &&
-                            classes.map((item: any, i: number) => (
-                                <div className={`text-center ${styles.attBox + ' ' + (selectedClass == i ? styles.attBoxSelected : '')}`} key={i} onClick={() => setSelectedClass(i)}>
-                                    <h6>{item.event_name}</h6>
-                                    <div>{item.instructor}</div>
-                                    <div>{item.event_time}</div>
-                                    <div className={`fw-bold ${styles.attCount}`}>{item.checked_in.length}</div>
-                                    <div onClick={() => openCheckModal()}>
-                                        <i className={`bi bi-check2-circle ${styles.iconColor}`}></i>
+                            classes.length > 0 ?
+                                classes.map((item: any, i: number) => (
+                                    <div className={`text-center ${styles.attBox + ' ' + (selectedClass == i ? styles.attBoxSelected : '')}`} key={i} onClick={() => setSelectedClass(i)}>
+                                        <h6>{item.event_name}</h6>
+                                        <div>{item.instructor}</div>
+                                        <div>{item.event_time}</div>
+                                        <div className={`fw-bold ${styles.attCount}`}>{item.checked_in.length}</div>
+                                        <div onClick={() => openCheckModal()}>
+                                            <i className={`bi bi-check2-circle ${styles.iconColor}`}></i>
+                                        </div>
                                     </div>
-                                </div>
-                            ))
+                                ))
+                                :
+                                <h5 className="text-center w-100 mt-5">
+                                    There is no attendance for the date range
+                                </h5>
                         }
                     </div>
                 </div>
@@ -246,7 +263,7 @@ const Dashboard = () => {
                             classes &&
                             classes[selectedClass]?.checked_in.map((item: any, i: number) => (
                                 <div className='d-flex align-items-center justify-content-between mb-2' key={i}>
-                                    <div>
+                                    <div className={`${styles.nameBox}`}>
                                         {item?.attendee_initial?.toUpperCase()}
                                     </div>
 
@@ -266,15 +283,17 @@ const Dashboard = () => {
             </div>
 
             <div className="modal fade" id="deleteModal" tabIndex={-1} aria-labelledby="deleteModalLabel" aria-hidden="true">
-                <div className="modal-dialog modal-sm">
+                <div className="modal-dialog modal-md">
                     <div className="modal-content">
 
-                        <div className="modal-body">
-                            <div className='text-center'>
+                        <div className="modal-body my-3 mx-3">
+                            <h5 className='fw-bold'>
                                 Are you sure you want to delete an Attendance Record on
-                                {' ' + new Date(today).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', }) + ' '}
-                                for <br /> {selectedUser?.user?.attendee_name}
-                            </div>
+                                <span className='text-primary fw-bold'>
+                                    {' ' + new Date(today).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", }) + ' '}
+                                </span>
+                                for <span className='text-primary fw-bold'>{selectedUser?.user?.attendee_name}</span>
+                            </h5>
                         </div>
                         <div className="modal-footer">
                             <button type="button" className={`btn ${styles.btnOutline}`} data-bs-dismiss="modal">Cancel</button>
@@ -289,9 +308,12 @@ const Dashboard = () => {
                     <div className="modal-content">
 
                         <div className="modal-body">
-                            <h5 className='text-center fw-bold'>
-                                Check-In Attendees
-                            </h5>
+                            <h6 className='fw-bold'>
+                                Check-In for {classes[selectedClass]?.event_name + ' on ' + showDateTime(classes[selectedClass]?.event_date) + ' ' + classes[selectedClass]?.event_time}
+                                <br />
+                                <br />
+                                Select Attendees to Check-In
+                            </h6>
 
                             <div>
                                 <div className="form-check">
@@ -313,13 +335,13 @@ const Dashboard = () => {
                                                 <input
                                                     className="form-check-input"
                                                     type="checkbox"
-                                                    value={item.user_id}
+                                                    value={item.id}
                                                     id={'checkinAttendee' + i}
                                                     onChange={handleCheckinAttendeeCheck}
-                                                    checked={checkinAttendees.includes(item.user_id)}
+                                                    checked={checkinAttendees.includes(item.id)}
                                                 />
                                                 <label className="form-check-label" htmlFor={'checkinAttendee' + i}>
-                                                    {item.attendee_name}
+                                                    {item.fullname}
                                                 </label>
                                             </div>
                                         ))}

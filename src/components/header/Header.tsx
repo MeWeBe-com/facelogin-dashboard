@@ -63,7 +63,7 @@ const Header = () => {
                         </li> */}
 
                         <li className="nav-item">
-                            <Link className="nav-link" href="#" onClick={closeNavbar}>
+                            <Link className="nav-link" href="https://doc.clickup.com/9018266847/d/h/8crfn6z-478/f3f8667d8886c68/8crfn6z-298" target="_blank" onClick={closeNavbar}>
                                 <i className={`bi bi-info-circle-fill ${styles.iconColor}`}></i>
                             </Link>
                         </li>
