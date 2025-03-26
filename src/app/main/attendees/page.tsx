@@ -37,10 +37,6 @@ const Attendance = () => {
         setAttendeesList(sortedArray);
     };
 
-    const editUser = (user:any)=>{
-        console.log(user)
-    }
-
     return (
         <>
             <div className="container mt-5">
@@ -100,15 +96,15 @@ const Attendance = () => {
                                     </div>
 
                                     <div>
-                                        Flexible
+                                       {item.pass_type}
                                     </div>
 
                                     <div>
-                                        12
+                                       {item.attendance_balance}
                                     </div>
 
                                     <div>
-                                        22-Feb-2025
+                                    {item.expiry_date}
                                     </div>
 
                                     <div>

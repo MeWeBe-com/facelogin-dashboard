@@ -35,6 +35,10 @@
     font-size: 14px;
 }
 
+.textPaid{
+    color: var(--primary);
+}
+
 .btnPaid{
     color: var(--primary);
     border: 1px solid var(--primary);

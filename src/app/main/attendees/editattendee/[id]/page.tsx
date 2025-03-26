@@ -161,6 +161,7 @@ const EditAttendee = () => {
         let res = await Http.post('AddAttendeePass', values);
         console.log(res);
         if (res && res.status == true) {
+            getAttendeePasses(values.user_id);
             resetForm();
             closeModal('createPassModal');
         }
@@ -380,7 +381,8 @@ const EditAttendee = () => {
                                 </div>
 
                                 <div>
-                                    <button className={`btn text-capitalize ${item.payment_status == 'pending' ? styles.btnPending : styles.btnPaid}`}>{item.payment_status} {item.amount + ' ' + item.payment_method}</button>
+                                    <button className={`btn text-capitalize ${item.payment_status == 'pending' ? styles.btnPending : styles.btnPaid}`}>{item.payment_status}</button>
+                                    {' '+item.amount + ' via ' + item.payment_method}
 
                                     <div className='my-2'>
                                         <i>
@@ -390,7 +392,7 @@ const EditAttendee = () => {
                                 </div>
 
                                 <div className='d-flex align-items-center mx-3' style={{ gap: 10 }}>
-                                    {item.status}
+                                    <span className={item.status == 'Revoked Pass' ? 'text-danger' : styles.textPaid}>{item.status}</span>
                                     <button className={`btn ${styles.btnOutline}`}>
                                         <i className="bi bi-pencil-fill"></i>
                                     </button>
