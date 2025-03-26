@@ -1,0 +1,62 @@
+.uploadBox {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    border: 1px solid grey;
+    border-radius: 10px;
+}
+
+.uploadBox:hover {
+    cursor: pointer;
+    border-color: var(--primary);
+}
+
+.cancelBtn{
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.loginBtn{
+    color: #fff;
+    background-color: var(--primary)!important;
+}
+
+.dflex div{
+    width: calc(100% / 2.2);
+}
+
+.listMainBox {
+    overflow-x: scroll;
+}
+
+.headBox div {
+    min-width: 150px;
+    max-width: 200px;
+    font-size: 14px;
+}
+
+.btnPaid{
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.btnPending{
+    color: var(--bs-red);
+    border: 1px dashed var(--bs-red);
+}
+
+.btnOutline {
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.btnColor {
+    color: #fff;
+    background: var(--primary);
+}
+
+.btnColor:hover {
+    color: #fff;
+    background: var(--primary);
+    opacity: .7;
+}

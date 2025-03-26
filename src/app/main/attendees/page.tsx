@@ -37,6 +37,10 @@ const Attendance = () => {
         setAttendeesList(sortedArray);
     };
 
+    const editUser = (user:any)=>{
+        console.log(user)
+    }
+
     return (
         <>
             <div className="container mt-5">
@@ -109,6 +113,12 @@ const Attendance = () => {
 
                                     <div>
                                         <button className={`btn ${styles.btnOutline}`}>Paid</button> 224 via bank
+                                    </div>
+
+                                    <div>
+                                        <button className={`btn ${styles.btnOutline}`} onClick={() => router.push(`/main/attendees/editattendee/${item.id}`)}>
+                                            <i className="bi bi-pencil-fill"></i>
+                                        </button>
                                     </div>
                                 </div>
                             ))
