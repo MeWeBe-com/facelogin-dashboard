@@ -20,6 +20,7 @@ const EditAttendee = () => {
     const [userImageToUpdate, setUserImageToUpdate] = useState<any>(null);
 
 
+    const [selectedUserPass, setSelectedUserPass] = useState<any>(null);
 
     const [passType, setPassType] = useState("");
 
@@ -105,8 +106,12 @@ const EditAttendee = () => {
         }
     }
 
-    const openModal = () => {
-        const modalElement = document.getElementById("createPassModal");
+    const openModal = (id: string, pass: any = null) => {
+        if (id == 'editPassModal') {
+            console.log(pass)
+            setSelectedUserPass(pass)
+        }
+        const modalElement = document.getElementById(id);
         if (modalElement && window.bootstrap) {
             const modal = new window.bootstrap.Modal(modalElement);
             modal.show();
@@ -154,18 +159,44 @@ const EditAttendee = () => {
         sendPass: false,
     };
 
+    const initialEditPassValues = {
+        user_id: userData.id,
+        attendeeName: userData.first_name + " " + userData.last_name,
+        id: selectedUserPass?.id || '',
+        payment_status: selectedUserPass?.payment_status || '',
+        payment_method: selectedUserPass?.payment_method || '',
+        amount: selectedUserPass?.amount || '',
+        note: selectedUserPass?.note || '',
+    };
+
     // Form submission handler
     const handleSubmit = async (values: any, { resetForm }: any) => {
-        console.log("Form Values:", values);
-
         let res = await Http.post('AddAttendeePass', values);
-        console.log(res);
         if (res && res.status == true) {
             getAttendeePasses(values.user_id);
             resetForm();
             closeModal('createPassModal');
         }
     };
+
+    const revokePass = async (id: any) => {
+        let res = await Http.get(`RevokedPass/${id}`);
+        if (res && res.status == true) {
+            getAttendeePasses(userData.id);
+            setSelectedUserPass(null);
+            closeModal('editPassModal');
+        }
+    }
+
+    const updatAttendeePass = async (values: any, { resetForm }: any) => {
+        let res = await Http.post('UpdateAttendeePass', values);
+        if (res && res.status == true) {
+            getAttendeePasses(values.user_id);
+            resetForm();
+            closeModal('editPassModal');
+        }
+    };
+
 
     return (
         <>
@@ -354,8 +385,6 @@ const EditAttendee = () => {
 
                         </div>
                     </div>
-
-
                     {
                         userPasses &&
                         userPasses.map((item: any, i: number) => (
@@ -382,7 +411,7 @@ const EditAttendee = () => {
 
                                 <div>
                                     <button className={`btn text-capitalize ${item.payment_status == 'pending' ? styles.btnPending : styles.btnPaid}`}>{item.payment_status}</button>
-                                    {' '+item.amount + ' via ' + item.payment_method}
+                                    {' ' + item.amount + ' via ' + item.payment_method}
 
                                     <div className='my-2'>
                                         <i>
@@ -393,7 +422,7 @@ const EditAttendee = () => {
 
                                 <div className='d-flex align-items-center mx-3' style={{ gap: 10 }}>
                                     <span className={item.status == 'Revoked Pass' ? 'text-danger' : styles.textPaid}>{item.status}</span>
-                                    <button className={`btn ${styles.btnOutline}`}>
+                                    <button className={`btn ${styles.btnOutline}`} onClick={() => openModal('editPassModal', item)}>
                                         <i className="bi bi-pencil-fill"></i>
                                     </button>
                                 </div>
@@ -404,7 +433,7 @@ const EditAttendee = () => {
             </div>
 
             <div className="container my-3 d-flex">
-                <button type="button" style={{ marginRight: 20 }} className={`btn ${styles.btnOutline}`} onClick={() => openModal()}>Create New Pass</button>
+                <button type="button" style={{ marginRight: 20 }} className={`btn ${styles.btnOutline}`} onClick={() => openModal('createPassModal')}>Create New Pass</button>
             </div>
 
 
@@ -572,6 +601,153 @@ const EditAttendee = () => {
                                         </button>
                                         <button type="submit" className={`btn ${styles.loginBtn}`}>
                                             Create Pass
+                                        </button>
+                                    </div>
+                                </Form>
+                            )}
+                        </Formik>
+                    </div>
+                </div>
+            </div>
+
+
+            <div
+                className={`modal fade`}
+                id="editPassModal"
+                tabIndex={-1}
+                aria-labelledby="editPassModal"
+                data-bs-backdrop="static"
+                data-bs-keyboard="false"
+            >
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <Formik
+                            enableReinitialize={true}
+                            initialValues={initialEditPassValues}
+                            onSubmit={updatAttendeePass}
+                        >
+                            {({ values }) => (
+                                <Form>
+                                    <div className="modal-body">
+                                        <h2 className="text-center fw-bold mb-5">
+                                            Attendance Pass Details
+                                        </h2>
+
+                                        {/* Attendee Name */}
+                                        <div className="mb-3">
+                                            <label className="form-label">Attendee Name</label>
+                                            <Field
+                                                type="text"
+                                                name="attendeeName"
+                                                className={`form-control`}
+                                                readOnly
+                                            />
+                                        </div>
+
+                                        {/* Pass Type (Radio Buttons) */}
+                                        <div className="mb-3">
+                                            <label className="form-label">Pass Type</label>
+                                            <Field
+                                                type="text"
+                                                className={`form-control`}
+                                                value={selectedUserPass?.pass_type}
+                                                readOnly
+                                            />
+                                        </div>
+
+                                        {
+                                            selectedUserPass?.pass_type == 'flexible' ?
+                                                <div className="mb-3">
+                                                    <label className="form-label">Attendance Balance</label>
+                                                    <Field
+                                                        type="text"
+                                                        className={`form-control`}
+                                                        value={selectedUserPass?.attendance_balance}
+                                                        readOnly
+                                                    />
+                                                </div>
+                                                : null
+                                        }
+
+                                        <div className="mb-3">
+                                            <label className="form-label">Expiry Date</label>
+                                            <Field
+                                                type="text"
+                                                className={`form-control`}
+                                                value={selectedUserPass?.expiry_date}
+                                                readOnly
+                                            />
+                                        </div>
+
+                                        {/* Payment Details Section */}
+                                        <div className="p-3 mb-3" style={{ border: "1px solid lightgrey", borderRadius: 10 }}>
+                                            <h6 className="text-secondary fw-bold">Payment Details (Optional)</h6>
+
+                                            {/* Payment Status */}
+                                            <div className="form-group mb-3">
+                                                <label htmlFor="payment_status">Status</label>
+                                                <Field as="select" className="form-control" name="payment_status">
+                                                    <option value="">Select</option>
+                                                    <option value="pending">Pending</option>
+                                                    <option value="partial">Partial</option>
+                                                    <option value="paid">Paid</option>
+                                                </Field>
+                                            </div>
+
+                                            {/* Payment Method */}
+                                            <div className="form-group mb-3">
+                                                <label htmlFor="payment_method">Method</label>
+                                                <Field as="select" className="form-control" name="payment_method">
+                                                    <option value="">Select</option>
+                                                    <option value="bank">Bank</option>
+                                                    <option value="cash">Cash</option>
+                                                    <option value="card">Card</option>
+                                                </Field>
+                                            </div>
+
+                                            {/* Amount */}
+                                            <div className="mb-3">
+                                                <label className="form-label">Amount</label>
+                                                <Field
+                                                    type="number"
+                                                    name="amount"
+                                                    className="form-control"
+                                                    placeholder="Enter amount"
+                                                />
+                                            </div>
+
+                                            {/* Note */}
+                                            <div className="mb-3">
+                                                <label className="form-label">Note</label>
+                                                <Field as="textarea" name="note" className="form-control" />
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    {/* Modal Footer */}
+                                    <div className="modal-footer d-flex align-items-center justify-content-between">
+                                        {
+                                            selectedUserPass?.status != "Revoked Pass" ?
+                                                <button
+                                                    type="button"
+                                                    className={`btn btn-outline-danger`}
+                                                    onClick={() => revokePass(selectedUserPass.id)}
+                                                >
+                                                    Revoke Pass
+                                                </button>
+                                                : null
+                                        }
+
+                                        <button
+                                            type="button"
+                                            className={`btn btn-outline-secondary ${styles.cancelBtn}`}
+                                            onClick={() => closeModal('editPassModal')}
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button type="submit" className={`btn ${styles.loginBtn}`}>
+                                            Save Pass
                                         </button>
                                     </div>
                                 </Form>
