@@ -27,7 +27,7 @@ const ForgotPassword = () => {
                         <input type="email" className={`form-control ${styles.myInput}`} />
                     </div>
 
-                    <button className={`btn w-100 ${styles.loginBtn}`} onClick={() => router.push("/main/home")}>Log In</button>
+                    <button className={`btn w-100 ${styles.loginBtn}`} onClick={() => router.push("/main/home")}>Submit</button>
 
                     <p className="text-center mt-3">
                         <Link href="/auth/login" className={styles.forgot}>Back to login</Link>

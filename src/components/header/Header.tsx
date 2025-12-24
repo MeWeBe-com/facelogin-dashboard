@@ -23,7 +23,7 @@ const Header = () => {
                 <div className="d-flex align-items-center">
                     <Link href="/main/dashboard" style={{ textDecoration: 'none' }}>
                         <Image src="/imgs/logo.png" alt="Logo" width={50} height={50} priority />
-                        <span className="fw-bold ms-2 text-dark" >Attendance Pass</span>
+                        <span className="fw-bold ms-2 text-dark" >Face Login</span>
                     </Link>
                 </div>
 
@@ -63,7 +63,7 @@ const Header = () => {
                         </li> */}
 
                         <li className="nav-item">
-                            <Link className="nav-link" href="https://doc.clickup.com/9018266847/d/h/8crfn6z-478/f3f8667d8886c68/8crfn6z-298" target="_blank" onClick={closeNavbar}>
+                            <Link className="nav-link" href="#"  onClick={closeNavbar}>
                                 <i className={`bi bi-info-circle-fill ${styles.iconColor}`}></i>
                             </Link>
                         </li>

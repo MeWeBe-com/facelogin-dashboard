@@ -1,7 +1,7 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const BASE_URL = "https://bwm.mewebe.net/api/";
+const BASE_URL = "";
 
 const axiosConfig = axios.create({
     baseURL: BASE_URL

@@ -18,7 +18,7 @@ const Login = () => {
 
                 {/* Login Card */}
                 <div className="p-4" style={{ width: "450px", maxWidth: '90%', margin: '0 auto' }}>
-                    <div className="text-center mb-3" style={{ fontSize: 27, fontWeight: 400 }}>Log In for Attendance Pass</div>
+                    <div className="text-center mb-3" style={{ fontSize: 27, fontWeight: 400 }}>Log In for Face Login</div>
 
                     <div className="mb-3">
                         <label className="form-label">Email</label>
@@ -39,10 +39,7 @@ const Login = () => {
                     </div>
 
                     <button className={`btn w-100 ${styles.loginBtn}`}>Log In</button>
-
-                    <p className="text-center mt-3">
-                        We are currently in closed Beta. Currently, you cannot create an organisation.
-                    </p>
+                    
                 </div>
             </div>
         </div>
